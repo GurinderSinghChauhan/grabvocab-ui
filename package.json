@@ -1,0 +1,32 @@
+{
+  "name": "grabvocab-ui",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@expo/metro-runtime": "~55.0.6",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "an-array-of-english-words": "^2.0.0",
+    "didyoumean": "^1.2.2",
+    "expo": "~55.0.8",
+    "expo-auth-session": "~7.0.8",
+    "expo-speech": "~55.0.9",
+    "expo-status-bar": "~55.0.4",
+    "expo-web-browser": "~15.0.8",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-native": "0.83.2",
+    "react-native-web": "^0.21.0"
+  },
+  "devDependencies": {
+    "@types/didyoumean": "^1.2.3",
+    "@types/react": "~19.2.2",
+    "typescript": "~5.9.2"
+  },
+  "private": true
+}
