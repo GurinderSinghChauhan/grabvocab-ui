@@ -207,18 +207,6 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [backendError, setBackendError] = useState<string | null>(null);
 
-  if (!fontsLoaded) {
-    return (
-      <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }]}>
-        <ActivityIndicator size="large" color="#3b82f6" />
-        <Text style={{ marginTop: 16, color: '#1a1a1a', fontFamily: 'Courier', fontWeight: '700' }}>Loading...</Text>
-      </SafeAreaView>
-    );
-  }
-
-  const colors = themeMap[theme];
-  const topButtons = ['Social Media', 'About Us', authUser ? 'Logout' : 'Login / Signup'] as const;
-
   useEffect(() => {
     void (async () => {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
@@ -339,6 +327,18 @@ export default function App() {
   );
 
   const totalPages = Math.max(1, Math.ceil(collectionWords.length / limit));
+
+  if (!fontsLoaded) {
+    return (
+      <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }]}>
+        <ActivityIndicator size="large" color="#3b82f6" />
+        <Text style={{ marginTop: 16, color: '#1a1a1a', fontFamily: 'Courier', fontWeight: '700' }}>Loading...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  const colors = themeMap[theme];
+  const topButtons = ['Social Media', 'About Us', authUser ? 'Logout' : 'Login / Signup'] as const;
 
   const navigate = (next: RouteState) => {
     setRoute(next);
