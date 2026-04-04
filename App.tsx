@@ -183,15 +183,6 @@ export default function App() {
     MaterialIcons: require('./assets/fonts/MaterialIcons.ttf'),
   });
 
-  if (!fontsLoaded) {
-    return (
-      <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }]}>
-        <ActivityIndicator size="large" color="#3b82f6" />
-        <Text style={{ marginTop: 16, color: '#1a1a1a', fontFamily: 'Courier', fontWeight: '700' }}>Loading...</Text>
-      </SafeAreaView>
-    );
-  }
-
   const { width } = useWindowDimensions();
   const isMobile = width < 640;
   const isTabletUp = width >= 768;
@@ -215,6 +206,15 @@ export default function App() {
   const [collectionWords, setCollectionWords] = useState<WordData[]>([]);
   const [loading, setLoading] = useState(false);
   const [backendError, setBackendError] = useState<string | null>(null);
+
+  if (!fontsLoaded) {
+    return (
+      <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }]}>
+        <ActivityIndicator size="large" color="#3b82f6" />
+        <Text style={{ marginTop: 16, color: '#1a1a1a', fontFamily: 'Courier', fontWeight: '700' }}>Loading...</Text>
+      </SafeAreaView>
+    );
+  }
 
   const colors = themeMap[theme];
   const topButtons = ['Social Media', 'About Us', authUser ? 'Logout' : 'Login / Signup'] as const;
