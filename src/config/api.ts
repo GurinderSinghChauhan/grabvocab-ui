@@ -1,5 +1,6 @@
 export const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL?.trim() || "http://localhost:5000";
+  process.env.EXPO_PUBLIC_API_BASE_URL?.trim() ||
+  "https://dictionary-backend-six.vercel.app";
 
 export type BackendWord = {
   word: string;
@@ -39,7 +40,7 @@ export const api = {
   wordOfDay: () => request<{ word: string; meaning: string; date: string }>('/wordoftheday'),
   define: (word: string) => request<{ term: string; result: BackendWord }>(`/define/${encodeURIComponent(word)}`),
   dictionary: (page = 1, limit = 10, search = '') =>
-    request<{ wordsArray: BackendWord[]; totalPages: number; total: number; page: number }>(
+    request<{ words: BackendWord[]; totalPages: number; total: number; page: number }>(
       `/words?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`
     ),
   subject: (subject: string, page = 1, limit = 10) =>

@@ -349,7 +349,7 @@ export default function App() {
         setCurrentWord(normalizeWord(data.result));
       } else if (nextRoute.page === 'dictionary') {
         const data = await api.dictionary(1, 50, '');
-        setCollectionWords(data.wordsArray.map(normalizeWord));
+        setCollectionWords(data.words.map(normalizeWord));
       } else if (nextRoute.page === 'subject') {
         const data = await api.subject(nextRoute.value, 1, 50);
         setCollectionWords(data.words.map(normalizeWord));

@@ -18,11 +18,13 @@ cp .env.example .env
 Set these variables in `.env`:
 
 ```env
-EXPO_PUBLIC_API_BASE_URL=http://localhost:5001
+EXPO_PUBLIC_API_BASE_URL=https://dictionary-backend-six.vercel.app
 EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=
 EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID=
 EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID=
 ```
+
+For local backend development, override `EXPO_PUBLIC_API_BASE_URL` with your local server URL.
 
 Google login stays wired in the app, but it will only work after the Google client IDs are configured here and in the backend env.
 
