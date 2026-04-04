@@ -31,6 +31,7 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
 } from '@expo/vector-icons';
+import { useFonts } from 'expo-font';
 
 import { api, type BackendWord } from './src/config/api';
 import { examOptions, gradeOptions, subjectOptions } from './src/data/sampleWords';
@@ -168,6 +169,23 @@ function formatDate(date?: string) {
 }
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    AntDesign: require('./assets/fonts/AntDesign.ttf'),
+    Entypo: require('./assets/fonts/Entypo.ttf'),
+    Feather: require('./assets/fonts/Feather.ttf'),
+    FontAwesome: require('./assets/fonts/FontAwesome.ttf'),
+    'FontAwesome5Free-Solid': require('./assets/fonts/FontAwesome5_Solid.ttf'),
+    'FontAwesome5Free-Regular': require('./assets/fonts/FontAwesome5_Regular.ttf'),
+    'FontAwesome5Free-Light': require('./assets/fonts/FontAwesome5_Regular.ttf'),
+    'FontAwesome5Free-Brand': require('./assets/fonts/FontAwesome5_Brands.ttf'),
+    MaterialCommunityIcons: require('./assets/fonts/MaterialCommunityIcons.ttf'),
+    MaterialIcons: require('./assets/fonts/MaterialIcons.ttf'),
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   const { width } = useWindowDimensions();
   const isMobile = width < 640;
   const isTabletUp = width >= 768;
