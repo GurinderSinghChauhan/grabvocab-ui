@@ -1,35 +1,46 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import words from 'an-array-of-english-words';
 import didYouMean from 'didyoumean';
 import { StatusBar } from 'expo-status-bar';
-import * as Speech from 'expo-speech';
 import * as WebBrowser from 'expo-web-browser';
-import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Platform, SafeAreaView, ScrollView, Text, View, useWindowDimensions } from 'react-native';
+import { useMemo } from 'react';
+import { ActivityIndicator, SafeAreaView, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { useFonts } from 'expo-font';
+import { useAppDispatch, useAppSelector } from './src/store/hooks';
 
 import { DesktopHeader, MobileHeader } from './src/components/Header';
 import { AboutPage, AuthPage, HomePage, QuizPage, SharePage, WordListPage, WordPage } from './src/components/pages';
-import { api, type BackendWord } from './src/config/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Speech from 'expo-speech';
+import { Platform } from 'react-native';
+
+import { api } from './src/config/api';
+import { loadRouteData } from './src/store/thunks';
+import { themeMap } from './src/config/themes';
 import { examOptions, gradeOptions, subjectOptions } from './src/data/sampleWords';
 import { ReduxProvider } from './src/store/ReduxProvider';
 import { styles } from './src/styles/appStyles';
-import type {
-  DropdownKey,
-  NavItem,
-  RouteState,
-  SpeechVoice,
-  ThemeColors,
-  ThemeMode,
-  User,
-  WordData,
-} from './src/types/app';
+import type { NavItem } from './src/types/app';
+import {
+  setRoute,
+  setPage,
+  setAuthMessage,
+  setAuthUser,
+  setAuthLoading,
+  closeDropdown,
+  closeDrawer,
+  setCurrentWord,
+  toggleTheme,
+  logout,
+  setQuery,
+  setSuggestions,
+  setLimit,
+  setDrawerOpen,
+  setOpenDropdown,
+} from './src/store/slices';
 
 WebBrowser.maybeCompleteAuthSession();
 
 const dictionaryWords = words;
-const STORAGE_KEY = 'grabvocab_frontend_user';
-const THEME_STORAGE_KEY = 'grabvocab_frontend_theme';
 const navItems: NavItem[] = [
   { label: 'Subject', dropdown: subjectOptions },
   { label: 'Grades', dropdown: gradeOptions },
@@ -37,61 +48,6 @@ const navItems: NavItem[] = [
   { label: 'Quiz' },
   { label: 'Dictionary A-Z' },
 ];
-
-const themeMap: Record<ThemeMode, ThemeColors> = {
-  light: {
-    backgroundGradient: '#f5f5f5',
-    backgroundColor: 'transparent',
-    accentColor: '#000000',
-    primaryText: '#1a1a1a',
-    secondaryText: '#555555',
-    borderColor: '#cbcbce',
-    headerColor: '#e5e3e3',
-    buttonBg: '#ffffff',
-    chipBg: '#e6f4ff',
-    chipText: '#4dabf7',
-    overlay: 'rgba(0,0,0,0.4)',
-    dropdownHover: '#ffbaba',
-    spotlightBg: '#dcfce7',
-  },
-  dark: {
-    backgroundGradient: '#1f1f1f',
-    backgroundColor: 'transparent',
-    accentColor: '#ffffff',
-    primaryText: '#fafafa',
-    secondaryText: '#a3a3a3',
-    borderColor: '#8c8989',
-    headerColor: '#454545',
-    buttonBg: '#222222',
-    chipBg: '#2d3d4d',
-    chipText: '#8ec5ff',
-    overlay: 'rgba(0,0,0,0.55)',
-    dropdownHover: '#6b4b4b',
-    spotlightBg: '#204533',
-  },
-};
-
-function normalizeWord(word: Partial<BackendWord> & { word: string; meaning: string }): WordData {
-  return {
-    word: word.word,
-    meaning: word.meaning,
-    partOfSpeech: word.partOfSpeech ?? '',
-    pronunciation: word.pronunciation ?? '',
-    wordForms: word.wordForms ?? [],
-    exampleSentence: word.exampleSentence ?? '',
-    synonyms: word.synonyms ?? [],
-    antonyms: word.antonyms ?? [],
-    memoryTrick: word.memoryTrick ?? '',
-    origin: word.origin ?? '',
-    imageURL: word.imageURL,
-  };
-}
-
-function formatDate(date?: string) {
-  return date
-    ? new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-    : new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-}
 
 function AppComponent() {
   const [fontsLoaded] = useFonts({
@@ -107,143 +63,42 @@ function AppComponent() {
     MaterialIcons: require('./assets/fonts/MaterialIcons.ttf'),
   });
 
+  // Redux selectors - all state now comes from Redux
+  const dispatch = useAppDispatch();
   const { width } = useWindowDimensions();
   const isMobile = width < 640;
   const isTabletUp = width >= 768;
 
-  const [theme, setTheme] = useState<ThemeMode>('light');
-  const [route, setRoute] = useState<RouteState>({ page: 'home' });
-  const [query, setQuery] = useState('');
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState<DropdownKey>(null);
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  // Theme
+  const theme = useAppSelector((state) => state.theme.mode);
 
-  const [authUser, setAuthUser] = useState<User | null>(null);
-  const [authLoading, setAuthLoading] = useState(false);
-  const [authMessage, setAuthMessage] = useState('');
-  const [preferredVoice, setPreferredVoice] = useState<string | undefined>(undefined);
+  // Routing
+  const route = useAppSelector((state) => state.routing.route);
+  const page = useAppSelector((state) => state.routing.page);
+  const limit = useAppSelector((state) => state.routing.limit);
 
-  const [wordOfTheDay, setWordOfTheDay] = useState<WordData | null>(null);
-  const [currentWord, setCurrentWord] = useState<WordData | null>(null);
-  const [collectionWords, setCollectionWords] = useState<WordData[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [backendError, setBackendError] = useState<string | null>(null);
+  // Search/Query
+  const query = useAppSelector((state) => state.ui.query);
+  const suggestions = useAppSelector((state) => state.ui.suggestions);
 
-  useEffect(() => {
-    void (async () => {
-      const stored = await AsyncStorage.getItem(STORAGE_KEY);
-      if (!stored) return;
-      try {
-        const parsed = JSON.parse(stored) as { token: string; user: User };
-        const response = await api.me(parsed.token);
-        const session = { token: parsed.token, user: response.user };
-        setAuthUser(response.user);
-        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(session));
-      } catch {
-        await AsyncStorage.removeItem(STORAGE_KEY);
-        setAuthUser(null);
-      }
-    })();
-  }, []);
+  // UI State
+  const drawerOpen = useAppSelector((state) => state.ui.drawerOpen);
+  const openDropdown = useAppSelector((state) => state.ui.openDropdown);
 
-  useEffect(() => {
-    void (async () => {
-      const storedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-      if (storedTheme === 'light' || storedTheme === 'dark') {
-        setTheme(storedTheme);
-      }
-    })();
-  }, []);
+  // Auth
+  const authUser = useAppSelector((state) => state.auth.user);
+  const authLoading = useAppSelector((state) => state.auth.loading);
+  const authMessage = useAppSelector((state) => state.auth.message);
 
-  useEffect(() => {
-    void AsyncStorage.setItem(THEME_STORAGE_KEY, theme);
-  }, [theme]);
+  // Speech
+  const preferredVoice = useAppSelector((state) => state.speech.preferredVoice);
 
-  useEffect(() => {
-    let active = true;
-
-    const loadPreferredVoice = async () => {
-      try {
-        const voices = (await Speech.getAvailableVoicesAsync()) as SpeechVoice[];
-        if (!active || !voices.length) return;
-
-        const englishVoices = voices.filter((voice) => voice.language?.toLowerCase().startsWith('en'));
-        const rankedVoice =
-          englishVoices.find((voice) => voice.quality?.toLowerCase() === 'enhanced') ??
-          englishVoices.find((voice) => /siri|samantha|ava|premium|natural|enhanced/i.test(voice.name ?? '')) ??
-          englishVoices.find((voice) => voice.language?.toLowerCase() === 'en-us') ??
-          englishVoices[0];
-
-        if (rankedVoice?.identifier) {
-          setPreferredVoice(rankedVoice.identifier);
-        }
-      } catch {
-        setPreferredVoice(undefined);
-      }
-    };
-
-    void loadPreferredVoice();
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    let active = true;
-
-    const loadSuggestions = async () => {
-      if (!query.trim()) {
-        setSuggestions([]);
-        return;
-      }
-
-      try {
-        const response = await fetch(`https://api.datamuse.com/sug?s=${encodeURIComponent(query.trim())}`);
-        const data = (await response.json()) as Array<{ word: string }>;
-        if (active) setSuggestions(data.slice(0, 5).map((item) => item.word));
-      } catch {
-        if (active) setSuggestions([]);
-      }
-    };
-
-    void loadSuggestions();
-
-    return () => {
-      active = false;
-    };
-  }, [query]);
-
-  useEffect(() => {
-    let active = true;
-
-    const loadWordOfTheDay = async () => {
-      try {
-        const data = await api.wordOfDay();
-        if (!active) return;
-        setWordOfTheDay({
-          ...normalizeWord(data),
-          date: data.date,
-        });
-      } catch (error: any) {
-        if (!active) return;
-        setWordOfTheDay(null);
-        setBackendError(error.message || 'Backend unavailable');
-      }
-    };
-
-    void loadWordOfTheDay();
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    void loadRouteData(route, page);
-  }, [route, page]);
+  // Words/Content
+  const wordOfTheDay = useAppSelector((state) => state.words.wordOfTheDay);
+  const currentWord = useAppSelector((state) => state.words.currentWord);
+  const collectionWords = useAppSelector((state) => state.words.collectionWords);
+  const loading = useAppSelector((state) => state.words.loading);
+  const backendError = useAppSelector((state) => state.words.backendError);
 
   const filteredWords = useMemo(
     () => collectionWords.slice((page - 1) * limit, page * limit),
@@ -264,83 +119,40 @@ function AppComponent() {
   const colors = themeMap[theme];
   const topButtons = ['Social Media', 'About Us', authUser ? 'Logout' : 'Login / Signup'] as const;
 
-  const navigate = (next: RouteState) => {
-    setRoute(next);
-    setOpenDropdown(null);
-    setDrawerOpen(false);
-    setPage(1);
-    setAuthMessage('');
-    if (next.page !== 'word') setCurrentWord(null);
+  // Navigation dispatcher
+  const navigate = (next: typeof route) => {
+    dispatch(setRoute(next));
+    dispatch(closeDropdown());
+    dispatch(closeDrawer());
+    dispatch(setPage(1));
+    dispatch(setAuthMessage(''));
+    if (next.page !== 'word') dispatch(setCurrentWord(null));
   };
 
-  const speak = (text: string) => {
-    Speech.stop();
-    Speech.speak(text, {
-      language: 'en-US',
-      voice: preferredVoice,
-      pitch: 1.0,
-      rate: Platform.OS === 'web' ? 0.9 : 0.82,
-    });
-  };
-
-  async function loadRouteData(nextRoute: RouteState, nextPage: number) {
-    if (nextRoute.page === 'home' || nextRoute.page === 'about' || nextRoute.page === 'share' || nextRoute.page === 'quiz' || nextRoute.page === 'auth') {
-      return;
-    }
-
-    setLoading(true);
-    setBackendError(null);
-
-    try {
-      if (nextRoute.page === 'word') {
-        const data = await api.define(nextRoute.word);
-        setCurrentWord(normalizeWord(data.result));
-      } else if (nextRoute.page === 'dictionary') {
-        const data = await api.dictionary(1, 50, '');
-        setCollectionWords(data.words.map(normalizeWord));
-      } else if (nextRoute.page === 'subject') {
-        const data = await api.subject(nextRoute.value, 1, 50);
-        setCollectionWords(data.words.map(normalizeWord));
-      } else if (nextRoute.page === 'grade') {
-        const data = await api.grade(nextRoute.value, 1, 50);
-        setCollectionWords(data.words.map(normalizeWord));
-      } else if (nextRoute.page === 'exam') {
-        const data = await api.exam(nextRoute.value, 1, 50);
-        setCollectionWords(data.words.map(normalizeWord));
-      }
-    } catch (error: any) {
-      if (nextRoute.page === 'word') setCurrentWord(null);
-      else setCollectionWords([]);
-      setBackendError(error.message || 'Backend unavailable');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const handleHeaderButton = async (label: string) => {
+  // Handle header button clicks
+  const handleHeaderButton = (label: string) => {
     if (label === 'Dictionary A-Z') navigate({ page: 'dictionary' });
     else if (label === 'Quiz') navigate({ page: 'quiz' });
     else if (label === 'Social Media') navigate({ page: 'share' });
     else if (label === 'About Us') navigate({ page: 'about' });
     else if (label === 'Login / Signup') navigate({ page: 'auth' });
     else if (label === 'Logout') {
-      setAuthUser(null);
-      await AsyncStorage.removeItem(STORAGE_KEY);
+      dispatch(logout());
       navigate({ page: 'home' });
     }
   };
 
+  // Handle search submission
   const handleSearch = () => {
     const trimmed = query.trim().toLowerCase();
     if (!trimmed) return;
     const corrected = didYouMean(trimmed, dictionaryWords);
     const target = typeof corrected === 'string' ? corrected : trimmed;
     navigate({ page: 'word', word: target });
-    setQuery('');
-    setSuggestions([]);
   };
 
-  const isActive = (label: string) => {
+  // Check if navigation item is active
+  const isActive = (label: string): boolean => {
     if (label === 'Dictionary A-Z') return route.page === 'dictionary';
     if (label === 'Quiz') return route.page === 'quiz';
     if (label === 'Subject') return route.page === 'subject';
@@ -352,7 +164,8 @@ function AppComponent() {
     return false;
   };
 
-  const formattedFilterTitle = () => {
+  // Get filter title for current route
+  const formattedFilterTitle = (): string => {
     if (route.page === 'subject') {
       return subjectOptions.find((item) => item.value === route.value)?.label ?? route.value;
     }
@@ -365,6 +178,7 @@ function AppComponent() {
     return '';
   };
 
+  // Get page title for current route
   const pageTitle = (): string => {
     switch (route.page) {
       case 'home':
@@ -387,6 +201,55 @@ function AppComponent() {
         return 'exam';
       case 'auth':
         return 'auth';
+      default:
+        return 'grabvocab';
+    }
+  };
+
+  // Speech handler
+  const speak = (text: string) => {
+    Speech.stop();
+    Speech.speak(text, {
+      language: 'en-US',
+      voice: preferredVoice,
+      pitch: 1.0,
+      rate: Platform.OS === 'web' ? 0.9 : 0.82,
+    });
+  };
+
+  // Auth handlers with Redux dispatch
+  const handleGoogleAuth = async (idToken: string) => {
+    dispatch(setAuthLoading(true));
+    dispatch(setAuthMessage(''));
+    try {
+      const data = await api.googleLogin(idToken);
+      dispatch(setAuthUser(data.user));
+      await AsyncStorage.setItem('grabvocab_frontend_user', JSON.stringify(data));
+      navigate({ page: 'home' });
+    } catch (error: any) {
+      dispatch(setAuthMessage(error.message || 'Google authentication failed.'));
+    } finally {
+      dispatch(setAuthLoading(false));
+    }
+  };
+
+  const handleAuthSubmit = async ({ email, mode, password, username }: any) => {
+    dispatch(setAuthLoading(true));
+    dispatch(setAuthMessage(''));
+    try {
+      let data;
+      if (mode === 'login') {
+        data = await api.login(email, password);
+      } else {
+        data = await api.register(username, email, password);
+      }
+      dispatch(setAuthUser(data.user));
+      await AsyncStorage.setItem('grabvocab_frontend_user', JSON.stringify(data));
+      navigate({ page: 'home' });
+    } catch (error: any) {
+      dispatch(setAuthMessage(error.message || 'Authentication failed.'));
+    } finally {
+      dispatch(setAuthLoading(false));
     }
   };
 
@@ -398,17 +261,15 @@ function AppComponent() {
           <MobileHeader
             colors={colors}
             drawerOpen={drawerOpen}
-            onClose={() => setDrawerOpen(false)}
-            onOpen={() => setDrawerOpen(true)}
-            onToggleTheme={() => setTheme((current) => (current === 'light' ? 'dark' : 'light'))}
+            onClose={() => dispatch(closeDrawer())}
+            onOpen={() => dispatch(setDrawerOpen(true))}
+            onToggleTheme={() => dispatch(toggleTheme())}
             theme={theme}
             query={query}
-            setQuery={setQuery}
+            setQuery={(q) => dispatch(setQuery(q))}
             suggestions={suggestions}
             onSuggestionPress={(word) => {
               navigate({ page: 'word', word });
-              setQuery('');
-              setSuggestions([]);
             }}
             onSearch={handleSearch}
             onHeaderButton={handleHeaderButton}
@@ -424,17 +285,15 @@ function AppComponent() {
         ) : (
           <DesktopHeader
             colors={colors}
-            openDropdown={openDropdown}
-            setOpenDropdown={setOpenDropdown}
-            onToggleTheme={() => setTheme((current) => (current === 'light' ? 'dark' : 'light'))}
+            openDropdown={(openDropdown as any)}
+            setOpenDropdown={(d) => dispatch(d ? setOpenDropdown(d) : closeDropdown())}
+            onToggleTheme={() => dispatch(toggleTheme())}
             theme={theme}
             query={query}
-            setQuery={setQuery}
+            setQuery={(q) => dispatch(setQuery(q))}
             suggestions={suggestions}
             onSuggestionPress={(word) => {
               navigate({ page: 'word', word });
-              setQuery('');
-              setSuggestions([]);
             }}
             onSearch={handleSearch}
             onHeaderButton={handleHeaderButton}
@@ -483,8 +342,8 @@ function AppComponent() {
                 onSpeak={speak}
                 page={page}
                 totalPages={totalPages}
-                onPageChange={setPage}
-                onLimitChange={setLimit}
+                onPageChange={(p) => dispatch(setPage(p))}
+                onLimitChange={(l) => {}}
                 isWide={isTabletUp}
                 loading={loading}
                 backendError={backendError}
@@ -500,8 +359,8 @@ function AppComponent() {
                 onSpeak={speak}
                 page={page}
                 totalPages={totalPages}
-                onPageChange={setPage}
-                onLimitChange={setLimit}
+                onPageChange={(p) => dispatch(setPage(p))}
+                onLimitChange={(l) => {}}
                 isWide={isTabletUp}
                 loading={loading}
                 backendError={backendError}
@@ -517,8 +376,8 @@ function AppComponent() {
                 onSpeak={speak}
                 page={page}
                 totalPages={totalPages}
-                onPageChange={setPage}
-                onLimitChange={setLimit}
+                onPageChange={(p) => dispatch(setPage(p))}
+                onLimitChange={(l) => {}}
                 isWide={isTabletUp}
                 loading={loading}
                 backendError={backendError}
@@ -534,8 +393,8 @@ function AppComponent() {
                 onSpeak={speak}
                 page={page}
                 totalPages={totalPages}
-                onPageChange={setPage}
-                onLimitChange={setLimit}
+                onPageChange={(p) => dispatch(setPage(p))}
+                onLimitChange={(l) => {}}
                 isWide={isTabletUp}
                 loading={loading}
                 backendError={backendError}
@@ -558,41 +417,8 @@ function AppComponent() {
                 colors={colors}
                 loading={authLoading}
                 message={authMessage}
-                onGoogleAuth={async (idToken) => {
-                  setAuthLoading(true);
-                  setAuthMessage('');
-                  try {
-                    const data = await api.googleLogin(idToken);
-                    setAuthUser(data.user);
-                    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                    navigate({ page: 'home' });
-                  } catch (error: any) {
-                    setAuthMessage(error.message || 'Google authentication failed.');
-                  } finally {
-                    setAuthLoading(false);
-                  }
-                }}
-                onSubmit={async ({ email, mode, password, username }) => {
-                  setAuthLoading(true);
-                  setAuthMessage('');
-                  try {
-                    if (mode === 'login') {
-                      const data = await api.login(email, password);
-                      setAuthUser(data.user);
-                      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                      navigate({ page: 'home' });
-                    } else {
-                      const data = await api.register(username, email, password);
-                      setAuthUser(data.user);
-                      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-                      navigate({ page: 'home' });
-                    }
-                  } catch (error: any) {
-                    setAuthMessage(error.message || 'Authentication failed.');
-                  } finally {
-                    setAuthLoading(false);
-                  }
-                }}
+                onGoogleAuth={handleGoogleAuth}
+                onSubmit={handleAuthSubmit}
               />
             )}
           </View>
