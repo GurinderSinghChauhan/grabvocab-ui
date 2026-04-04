@@ -1,0 +1,66 @@
+name: Performance Monitoring
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build web
+        run: npm run build
+
+      - name: Start web server
+        run: npx http-server web-build -p 3000 &
+        continue-on-error: true
+
+      - name: Wait for server
+        run: sleep 3
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          configPath: './lighthouserc.json'
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+        continue-on-error: true
+
+      - name: Comment PR with Lighthouse results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.existsSync('./.lhci/reports/manifest.json')
+              ? JSON.parse(fs.readFileSync('./.lhci/reports/manifest.json', 'utf8'))
+              : null;
+            
+            if (!report) {
+              console.log('Lighthouse report not available');
+              return;
+            }
+            
+            const summary = report.length > 0 
+              ? `✅ Lighthouse Report\n\nURL: [View Report](${report[0].url})`
+              : '⚠️ Lighthouse scan incomplete';
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+        continue-on-error: true

@@ -15,7 +15,8 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,json,css}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,json,css}\"",
     "test": "jest --coverage",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "analyze": "npx source-map-explorer 'web-build/**/*.js'"
   },
   "dependencies": {
     "@expo/metro-runtime": "~55.0.6",

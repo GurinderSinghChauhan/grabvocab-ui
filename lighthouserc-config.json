@@ -1,0 +1,23 @@
+{
+  "extends": "lighthouse:default",
+  "settings": {
+    "formFactor": "mobile",
+    "screenEmulation": {
+      "mobile": true,
+      "width": 375,
+      "height": 667,
+      "deviceScaleFactor": 2,
+      "disabled": false
+    },
+    "throttling": {
+      "rttMs": 150,
+      "throughputKbps": 1600,
+      "cpuSlowdownMultiplier": 4,
+      "requestLatencyMs": 0,
+      "downloadThroughputKbps": 0,
+      "uploadThroughputKbps": 0
+    },
+    "skipAudits": ["third-party-summary", "third-party-facades"]
+  },
+  "onlyCategories": ["performance", "accessibility", "best-practices", "seo"]
+}

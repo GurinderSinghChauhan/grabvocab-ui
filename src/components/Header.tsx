@@ -1,4 +1,12 @@
-import { Modal, Pressable, Text, TextInput, View, Image, type ImageSourcePropType } from 'react-native';
+import {
+  Modal,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+  Image,
+  type ImageSourcePropType,
+} from 'react-native';
 import {
   AntDesign,
   Entypo,
