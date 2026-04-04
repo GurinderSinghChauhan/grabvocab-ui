@@ -8,6 +8,7 @@ import * as Speech from 'expo-speech';
 import * as WebBrowser from 'expo-web-browser';
 import { useEffect, useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Image,
   Modal,
@@ -183,7 +184,12 @@ export default function App() {
   });
 
   if (!fontsLoaded) {
-    return null;
+    return (
+      <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }]}>
+        <ActivityIndicator size="large" color="#3b82f6" />
+        <Text style={{ marginTop: 16, color: '#1a1a1a', fontFamily: 'Courier', fontWeight: '700' }}>Loading...</Text>
+      </SafeAreaView>
+    );
   }
 
   const { width } = useWindowDimensions();
