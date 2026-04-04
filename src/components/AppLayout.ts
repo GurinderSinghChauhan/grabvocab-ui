@@ -83,9 +83,7 @@ export function useAppLayout() {
     } catch (error: unknown) {
       if (nextRoute.page === 'word') dispatch(setCurrentWord(null));
       else dispatch(setCollectionWords([]));
-      dispatch(
-        setBackendError(error instanceof Error ? error.message : 'Backend unavailable')
-      );
+      dispatch(setBackendError(error instanceof Error ? error.message : 'Backend unavailable'));
     } finally {
       dispatch(setLoading(false));
     }
@@ -128,7 +126,9 @@ export function useAppLayout() {
       return gradeOptions.find((item) => item.value === route.value)?.label ?? route.value;
     }
     if (route.page === 'exam' && 'value' in route) {
-      return (examOptions.find((item) => item.value === route.value)?.label ?? route.value).toUpperCase();
+      return (
+        examOptions.find((item) => item.value === route.value)?.label ?? route.value
+      ).toUpperCase();
     }
     return '';
   }, [route]);

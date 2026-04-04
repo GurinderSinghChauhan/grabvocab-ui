@@ -12,6 +12,7 @@ import { DesktopHeader, MobileHeader } from './src/components/Header';
 import { AboutPage, AuthPage, HomePage, QuizPage, SharePage, WordListPage, WordPage } from './src/components/pages';
 import { api, type BackendWord } from './src/config/api';
 import { examOptions, gradeOptions, subjectOptions } from './src/data/sampleWords';
+import { ReduxProvider } from './src/store/ReduxProvider';
 import { styles } from './src/styles/appStyles';
 import type {
   DropdownKey,
@@ -92,7 +93,7 @@ function formatDate(date?: string) {
     : new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-export default function App() {
+function AppComponent() {
   const [fontsLoaded] = useFonts({
     AntDesign: require('./assets/fonts/AntDesign.ttf'),
     Entypo: require('./assets/fonts/Entypo.ttf'),
@@ -601,3 +602,13 @@ export default function App() {
     </SafeAreaView>
   );
 }
+
+function AppWrapper() {
+  return (
+    <ReduxProvider>
+      <AppComponent />
+    </ReduxProvider>
+  );
+}
+
+export default AppWrapper;

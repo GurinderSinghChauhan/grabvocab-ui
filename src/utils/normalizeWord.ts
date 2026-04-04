@@ -4,7 +4,9 @@ import type { WordData } from '../types/app';
 /**
  * Convert backend word response to normalized WordData format
  */
-export function normalizeWord(word: Partial<BackendWord> & { word: string; meaning: string }): WordData {
+export function normalizeWord(
+  word: Partial<BackendWord> & { word: string; meaning: string }
+): WordData {
   return {
     word: word.word,
     meaning: word.meaning,
