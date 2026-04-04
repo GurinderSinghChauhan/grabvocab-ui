@@ -1,16 +1,12 @@
 import { useCallback, useEffect } from 'react';
 
-import { api } from '../config/api';
 import { examOptions, gradeOptions, subjectOptions } from '../data/sampleWords';
-import { normalizeWord } from '../utils/normalizeWord';
 import type { RouteState } from '../types/app';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { loadRouteData } from '../store/thunks';
 import {
   setRoute,
   setCurrentWord,
-  setCollectionWords,
-  setLoading,
-  setBackendError,
   setPage,
   setAuthMessage,
   closeDrawer,
@@ -46,56 +42,11 @@ export function useAppLayout() {
   );
 
   /**
-   * Load data for the current route
-   */
-  async function loadRouteData(nextRoute: RouteState) {
-    // Pages that don't need data loading
-    if (
-      nextRoute.page === 'home' ||
-      nextRoute.page === 'about' ||
-      nextRoute.page === 'share' ||
-      nextRoute.page === 'quiz' ||
-      nextRoute.page === 'auth'
-    ) {
-      return;
-    }
-
-    dispatch(setLoading(true));
-    dispatch(setBackendError(null));
-
-    try {
-      if (nextRoute.page === 'word') {
-        const data = await api.define(nextRoute.word);
-        dispatch(setCurrentWord(normalizeWord(data.result)));
-      } else if (nextRoute.page === 'dictionary') {
-        const data = await api.dictionary(1, 50, '');
-        dispatch(setCollectionWords(data.words.map(normalizeWord)));
-      } else if (nextRoute.page === 'subject') {
-        const data = await api.subject(nextRoute.value, 1, 50);
-        dispatch(setCollectionWords(data.words.map(normalizeWord)));
-      } else if (nextRoute.page === 'grade') {
-        const data = await api.grade(nextRoute.value, 1, 50);
-        dispatch(setCollectionWords(data.words.map(normalizeWord)));
-      } else if (nextRoute.page === 'exam') {
-        const data = await api.exam(nextRoute.value, 1, 50);
-        dispatch(setCollectionWords(data.words.map(normalizeWord)));
-      }
-    } catch (error: unknown) {
-      if (nextRoute.page === 'word') dispatch(setCurrentWord(null));
-      else dispatch(setCollectionWords([]));
-      dispatch(setBackendError(error instanceof Error ? error.message : 'Backend unavailable'));
-    } finally {
-      dispatch(setLoading(false));
-    }
-  }
-
-  /**
-   * Trigger data load when route or page changes
+   * Trigger async data load when route changes
    */
   useEffect(() => {
-    void loadRouteData(route);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route]);
+    void dispatch(loadRouteData(route));
+  }, [route, dispatch]);
 
   /**
    * Check if navigation item is currently active

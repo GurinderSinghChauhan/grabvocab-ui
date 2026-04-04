@@ -1,8 +1,9 @@
 import { useWindowDimensions } from 'react-native';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import * as Speech from 'expo-speech';
 
 import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { loadSuggestions } from '../store/thunks';
 import {
   setTheme,
   toggleTheme as reduxToggleTheme,
@@ -138,6 +139,15 @@ export function useSearch() {
   const clearSearchData = useCallback(() => {
     dispatch(clearSearch());
   }, [dispatch]);
+
+  // Dispatch thunk when query changes
+  useEffect(() => {
+    if (!query.trim()) {
+      dispatch(setSuggestions([]));
+      return;
+    }
+    void dispatch(loadSuggestions(query));
+  }, [query, dispatch]);
 
   return {
     query,

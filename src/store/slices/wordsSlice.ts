@@ -1,6 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 import type { WordData } from '../../types/app';
+import { loadRouteData } from '../thunks';
 
 interface WordsState {
   wordOfTheDay: WordData | null;
@@ -46,6 +47,26 @@ export const wordsSlice = createSlice({
     clearCollection: (state) => {
       state.collectionWords = [];
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(loadRouteData.pending, (state) => {
+        state.loading = true;
+        state.backendError = null;
+      })
+      .addCase(loadRouteData.fulfilled, (state, action) => {
+        state.loading = false;
+        if (action.payload === null) return;
+        if (action.payload.type === 'currentWord') {
+          state.currentWord = action.payload.data;
+        } else if (action.payload.type === 'collectionWords') {
+          state.collectionWords = action.payload.data;
+        }
+      })
+      .addCase(loadRouteData.rejected, (state, action) => {
+        state.loading = false;
+        state.backendError = action.error.message || 'Backend unavailable';
+      });
   },
 });
 

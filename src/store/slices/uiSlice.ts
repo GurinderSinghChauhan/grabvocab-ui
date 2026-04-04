@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { loadSuggestions } from '../thunks';
 
 interface UIState {
   drawerOpen: boolean;
@@ -43,6 +44,14 @@ export const uiSlice = createSlice({
       state.query = '';
       state.suggestions = [];
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(loadSuggestions.fulfilled, (state, action) => {
+      state.suggestions = action.payload;
+    });
+    builder.addCase(loadSuggestions.rejected, () => {
+      // Keep existing suggestions on error
+    });
   },
 });
 
