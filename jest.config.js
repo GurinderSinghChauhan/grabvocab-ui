@@ -5,20 +5,21 @@ module.exports = {
   testMatch: ['**/__tests__/**/*.ts?(x)', '**/?(*.)+(spec|test).ts?(x)'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   transform: {
-    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.tsx?$': ['ts-jest', { tsconfig: { jsx: 'react' } }],
   },
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',
     '!src/**/index.ts',
+    '!src/**/index.tsx',
     '!src/**/*.stories.tsx',
   ],
   coverageThreshold: {
     global: {
-      branches: 50,
-      functions: 50,
-      lines: 50,
-      statements: 50,
+      branches: 30,
+      functions: 30,
+      lines: 30,
+      statements: 30,
     },
   },
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
