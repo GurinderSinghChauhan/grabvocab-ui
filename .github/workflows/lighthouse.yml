@@ -9,6 +9,9 @@ on:
 jobs:
   lighthouse:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
@@ -34,9 +37,8 @@ jobs:
         uses: treosh/lighthouse-ci-action@v10
         with:
           configPath: './lighthouserc.json'
-          uploadArtifacts: true
+          uploadArtifacts: false
           temporaryPublicStorage: true
-        continue-on-error: true
 
       - name: Comment PR with Lighthouse results
         if: github.event_name == 'pull_request'
@@ -63,4 +65,3 @@ jobs:
               repo: context.repo.repo,
               body: summary
             });
-        continue-on-error: true

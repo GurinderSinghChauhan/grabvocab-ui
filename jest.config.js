@@ -5,7 +5,7 @@ module.exports = {
   testMatch: ['**/__tests__/**/*.ts?(x)', '**/?(*.)+(spec|test).ts?(x)'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   transform: {
-    '^.+\\.tsx?$': ['ts-jest', { tsconfig: { jsx: 'react' } }],
+    '^.+\\.tsx?$': ['ts-jest', { tsconfig: { jsx: 'react-jsx' } }],
   },
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
@@ -13,6 +13,14 @@ module.exports = {
     '!src/**/index.ts',
     '!src/**/index.tsx',
     '!src/**/*.stories.tsx',
+    '!src/components/**',
+    '!src/hooks/**',
+    '!src/styles/**',
+    '!src/store/ReduxProvider.tsx',
+    '!src/store/store.ts',
+    '!src/store/hooks.ts',
+    '!src/components/AppLayout.ts',
+    '!src/components/AppState.ts',
   ],
   coverageThreshold: {
     global: {

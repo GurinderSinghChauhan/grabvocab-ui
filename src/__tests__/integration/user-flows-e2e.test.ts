@@ -403,14 +403,14 @@ describe('E2E User Flows: Multi-Step Journeys', () => {
 
       store.dispatch(setRoute({ page: 'subject', value: 'biology' }));
 
-      // First attempt fails
+      // First attempt falls back to seeded data when the backend fails
       (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
       const failResult = await store.dispatch(
         loadRouteData({ page: 'subject', value: 'biology' }) as any
       );
-      expect(failResult.type).toContain('rejected');
+      expect(failResult.type).toContain('fulfilled');
 
-      // User retries
+      // A retry still succeeds when the backend responds
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
