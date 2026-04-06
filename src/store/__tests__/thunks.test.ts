@@ -45,11 +45,7 @@ describe('Redux Thunks: Error Handling & Edge Cases', () => {
 
     it('should fetch suggestions successfully', async () => {
       mockFetch.mockResolvedValueOnce({
-        json: async () => [
-          { word: 'test' },
-          { word: 'testing' },
-          { word: 'tester' },
-        ],
+        json: async () => [{ word: 'test' }, { word: 'testing' }, { word: 'tester' }],
       });
 
       const store = createTestStore();
@@ -112,9 +108,7 @@ describe('Redux Thunks: Error Handling & Edge Cases', () => {
       });
 
       await createTestStore().dispatch(loadSuggestions('café'));
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('caf%C3%A9')
-      );
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('caf%C3%A9'));
     });
   });
 
@@ -122,7 +116,7 @@ describe('Redux Thunks: Error Handling & Edge Cases', () => {
     describe('Pages that do not require data loading', () => {
       const noDataPages = ['home', 'about', 'share', 'quiz', 'auth'] as const;
 
-      noDataPages.forEach(page => {
+      noDataPages.forEach((page) => {
         it(`should return null for ${page} page`, async () => {
           const store = createTestStore();
           const route = { page } as RouteState;
@@ -161,9 +155,7 @@ describe('Redux Thunks: Error Handling & Edge Cases', () => {
       });
 
       it('should handle word lookup errors', async () => {
-        (api.define as jest.Mock).mockRejectedValueOnce(
-          new Error('Word not found')
-        );
+        (api.define as jest.Mock).mockRejectedValueOnce(new Error('Word not found'));
 
         const store = createTestStore();
         const route = { page: 'word' as const, word: 'nonexistent' };
@@ -226,9 +218,7 @@ describe('Redux Thunks: Error Handling & Edge Cases', () => {
       });
 
       it('should handle dictionary API errors', async () => {
-        (api.dictionary as jest.Mock).mockRejectedValueOnce(
-          new Error('API limit exceeded')
-        );
+        (api.dictionary as jest.Mock).mockRejectedValueOnce(new Error('API limit exceeded'));
 
         const store = createTestStore();
         const route = { page: 'dictionary' as const };
@@ -285,17 +275,11 @@ describe('Redux Thunks: Error Handling & Edge Cases', () => {
           expect(result.type).toMatch(/fulfilled/);
           const payload = result.payload as any;
           expect(payload?.type).toBe('collectionWords');
-          expect((api[apiMethod] as jest.Mock)).toHaveBeenCalledWith(
-            value,
-            1,
-            50
-          );
+          expect(api[apiMethod] as jest.Mock).toHaveBeenCalledWith(value, 1, 50);
         });
 
         it(`should handle ${page} API errors`, async () => {
-          (api[apiMethod] as jest.Mock).mockRejectedValueOnce(
-            new Error(`${page} not found`)
-          );
+          (api[apiMethod] as jest.Mock).mockRejectedValueOnce(new Error(`${page} not found`));
 
           const store = createTestStore();
           const route = { page, value } as RouteState;
@@ -321,9 +305,7 @@ describe('Redux Thunks: Error Handling & Edge Cases', () => {
       });
 
       it('should handle timeout errors', async () => {
-        (api.dictionary as jest.Mock).mockRejectedValueOnce(
-          new Error('Request timeout')
-        );
+        (api.dictionary as jest.Mock).mockRejectedValueOnce(new Error('Request timeout'));
 
         const store = createTestStore();
         const route = { page: 'dictionary' as const };

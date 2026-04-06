@@ -1,7 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer, { setAuthUser, logout } from '../../store/slices/authSlice';
 import themeReducer, { toggleTheme } from '../../store/slices/themeSlice';
-import uiReducer, { setOpenDropdown, setQuery, setSuggestions, toggleDrawer } from '../../store/slices/uiSlice';
+import uiReducer, {
+  setOpenDropdown,
+  setQuery,
+  setSuggestions,
+  toggleDrawer,
+} from '../../store/slices/uiSlice';
 import wordsReducer, { setWordOfTheDay } from '../../store/slices/wordsSlice';
 import routingReducer, { setRoute } from '../../store/slices/routingSlice';
 import speechReducer from '../../store/slices/speechSlice';
@@ -358,18 +363,20 @@ describe('Component Integration: Header', () => {
       const authState1 = selectAuthUser(store.getState());
 
       // Change unrelated state (word data)
-      store.dispatch(setWordOfTheDay({
-        word: 'serendipity',
-        meaning: 'lucky occurrence',
-        partOfSpeech: 'noun',
-        pronunciation: 'ser-uh-nip-i-tee',
-        wordForms: [],
-        exampleSentence: 'It was a happy serendipity.',
-        synonyms: ['luck'],
-        antonyms: [],
-        memoryTrick: '',
-        origin: 'Persian',
-      }));
+      store.dispatch(
+        setWordOfTheDay({
+          word: 'serendipity',
+          meaning: 'lucky occurrence',
+          partOfSpeech: 'noun',
+          pronunciation: 'ser-uh-nip-i-tee',
+          wordForms: [],
+          exampleSentence: 'It was a happy serendipity.',
+          synonyms: ['luck'],
+          antonyms: [],
+          memoryTrick: '',
+          origin: 'Persian',
+        })
+      );
 
       const authState2 = selectAuthUser(store.getState());
 

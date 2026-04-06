@@ -31,11 +31,7 @@ describe('API Integration: Data Fetching', () => {
   describe('loadSuggestions Thunk', () => {
     it('should fetch suggestions from Datamuse API', async () => {
       const store = createTestStore();
-      const mockSuggestions = [
-        { word: 'apple' },
-        { word: 'application' },
-        { word: 'applaud' },
-      ];
+      const mockSuggestions = [{ word: 'apple' }, { word: 'application' }, { word: 'applaud' }];
 
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
@@ -176,9 +172,7 @@ describe('API Integration: Data Fetching', () => {
         json: async () => mockWords,
       });
 
-      const result = await store.dispatch(
-        loadRouteData({ page: 'grade', value: '1' }) as any
-      );
+      const result = await store.dispatch(loadRouteData({ page: 'grade', value: '1' }) as any);
       expect(result.type).toContain('fulfilled');
     });
 
@@ -196,20 +190,14 @@ describe('API Integration: Data Fetching', () => {
         json: async () => mockWords,
       });
 
-      const result = await store.dispatch(
-        loadRouteData({ page: 'exam', value: 'SAT' }) as any
-      );
+      const result = await store.dispatch(loadRouteData({ page: 'exam', value: 'SAT' }) as any);
       expect(result.type).toContain('fulfilled');
     });
 
     it('should fetch dictionary page data', async () => {
       const store = createTestStore();
       const mockDictData = {
-        words: [
-          { word: 'apple' },
-          { word: 'application' },
-          { word: 'apply' },
-        ],
+        words: [{ word: 'apple' }, { word: 'application' }, { word: 'apply' }],
       };
 
       (global.fetch as jest.Mock).mockResolvedValueOnce({
@@ -217,28 +205,20 @@ describe('API Integration: Data Fetching', () => {
         json: async () => mockDictData,
       });
 
-      const result = await store.dispatch(
-        loadRouteData({ page: 'dictionary' }) as any
-      );
+      const result = await store.dispatch(loadRouteData({ page: 'dictionary' }) as any);
       expect(result.type).toContain('fulfilled');
     });
 
     it('should return null for pages without data loading', async () => {
       const store = createTestStore();
 
-      const homeResult = await store.dispatch(
-        loadRouteData({ page: 'home' }) as any
-      );
+      const homeResult = await store.dispatch(loadRouteData({ page: 'home' }) as any);
       expect(homeResult.payload).toBeNull();
 
-      const aboutResult = await store.dispatch(
-        loadRouteData({ page: 'about' }) as any
-      );
+      const aboutResult = await store.dispatch(loadRouteData({ page: 'about' }) as any);
       expect(aboutResult.payload).toBeNull();
 
-      const quizResult = await store.dispatch(
-        loadRouteData({ page: 'quiz' }) as any
-      );
+      const quizResult = await store.dispatch(loadRouteData({ page: 'quiz' }) as any);
       expect(quizResult.payload).toBeNull();
     });
 
@@ -247,9 +227,7 @@ describe('API Integration: Data Fetching', () => {
 
       (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
 
-      const result = await store.dispatch(
-        loadRouteData({ page: 'word', word: 'test' }) as any
-      );
+      const result = await store.dispatch(loadRouteData({ page: 'word', word: 'test' }) as any);
       expect(result.type).toContain('rejected');
     });
 
@@ -278,9 +256,7 @@ describe('API Integration: Data Fetching', () => {
         },
       });
 
-      const result = await store.dispatch(
-        loadRouteData({ page: 'dictionary' }) as any
-      );
+      const result = await store.dispatch(loadRouteData({ page: 'dictionary' }) as any);
       expect(result.type).toContain('rejected');
     });
 
@@ -293,22 +269,16 @@ describe('API Integration: Data Fetching', () => {
         statusText: 'Internal Server Error',
       });
 
-      const result = await store.dispatch(
-        loadRouteData({ page: 'subject', value: 'math' }) as any
-      );
+      const result = await store.dispatch(loadRouteData({ page: 'subject', value: 'math' }) as any);
       expect(result.type).toContain('rejected');
     });
 
     it('should handle timeout gracefully', async () => {
       const store = createTestStore();
 
-      (global.fetch as jest.Mock).mockRejectedValueOnce(
-        new Error('Request timeout')
-      );
+      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Request timeout'));
 
-      const result = await store.dispatch(
-        loadRouteData({ page: 'exam', value: 'GRE' }) as any
-      );
+      const result = await store.dispatch(loadRouteData({ page: 'exam', value: 'GRE' }) as any);
       expect(result.type).toContain('rejected');
     });
   });
@@ -338,7 +308,7 @@ describe('API Integration: Data Fetching', () => {
       ]);
 
       expect(results).toHaveLength(3);
-      expect(results.every(r => r.payload)).toBe(true);
+      expect(results.every((r) => r.payload)).toBe(true);
     });
 
     it('should handle mixed API request types concurrently', async () => {
@@ -413,9 +383,7 @@ describe('API Integration: Data Fetching', () => {
         json: async () => mockData,
       });
 
-      const result = await store.dispatch(
-        loadRouteData({ page: 'word', word: 'test' }) as any
-      );
+      const result = await store.dispatch(loadRouteData({ page: 'word', word: 'test' }) as any);
       expect(result.type).toContain('fulfilled');
     });
 
@@ -440,7 +408,7 @@ describe('API Integration: Data Fetching', () => {
 
       (global.fetch as jest.Mock).mockImplementationOnce(
         () =>
-          new Promise(resolve =>
+          new Promise((resolve) =>
             setTimeout(
               () =>
                 resolve({

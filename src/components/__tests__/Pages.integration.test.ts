@@ -2,7 +2,11 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer, { setAuthUser } from '../../store/slices/authSlice';
 import themeReducer, { toggleTheme } from '../../store/slices/themeSlice';
 import uiReducer from '../../store/slices/uiSlice';
-import wordsReducer, { setWordOfTheDay, setCurrentWord, setCollectionWords } from '../../store/slices/wordsSlice';
+import wordsReducer, {
+  setWordOfTheDay,
+  setCurrentWord,
+  setCollectionWords,
+} from '../../store/slices/wordsSlice';
 import routingReducer, { setRoute } from '../../store/slices/routingSlice';
 import speechReducer from '../../store/slices/speechSlice';
 import { themeMap } from '../../config/themes';
@@ -343,7 +347,7 @@ describe('Component Integration: Pages', () => {
         { page: 'auth' },
       ];
 
-      pages.forEach(page => {
+      pages.forEach((page) => {
         store.dispatch(setRoute(page));
         expect((store.getState().routing.route as any).page).toBe(page.page);
       });
@@ -399,7 +403,7 @@ describe('Component Integration: Pages', () => {
 
       store.dispatch(setAuthUser({ id: '1', email: 'user@test.com', username: 'testuser' }));
 
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(store.getState().auth.user).not.toBeNull();
     });
@@ -416,7 +420,7 @@ describe('Component Integration: Pages', () => {
         { page: 'about' },
       ];
 
-      pages.forEach(page => {
+      pages.forEach((page) => {
         store.dispatch(setRoute(page));
 
         const theme = store.getState().theme.mode;

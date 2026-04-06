@@ -1,5 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
-import authReducer, { setAuthUser, setAuthLoading, setAuthMessage, clearAuthMessage, logout } from '../../store/slices/authSlice';
+import authReducer, {
+  setAuthUser,
+  setAuthLoading,
+  setAuthMessage,
+  clearAuthMessage,
+  logout,
+} from '../../store/slices/authSlice';
 import themeReducer, { toggleTheme } from '../../store/slices/themeSlice';
 
 type RootState = {
@@ -14,7 +20,7 @@ function createFreshStore() {
       auth: authReducer,
       theme: themeReducer,
     },
-    middleware: getDefaultMiddleware =>
+    middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         serializableCheck: {
           ignoredActions: ['FLUSH', 'REHYDRATE', 'PAUSE', 'PERSIST', 'PURGE', 'REGISTER'],

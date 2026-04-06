@@ -65,21 +65,21 @@ describe('Mobile Responsiveness: Viewport & Interaction Tests', () => {
 
     it('should detect various common mobile sizes', () => {
       const mobileSizes = [320, 375, 414, 540];
-      mobileSizes.forEach(width => {
+      mobileSizes.forEach((width) => {
         expect(getViewportType(width)).toBe('mobile');
       });
     });
 
     it('should detect various tablet sizes', () => {
       const tabletSizes = [640, 768, 834, 899];
-      tabletSizes.forEach(width => {
+      tabletSizes.forEach((width) => {
         expect(getViewportType(width)).toBe('tablet');
       });
     });
 
     it('should detect various desktop sizes', () => {
       const desktopSizes = [900, 1024, 1366, 1920, 2560];
-      desktopSizes.forEach(width => {
+      desktopSizes.forEach((width) => {
         expect(getViewportType(width)).toBe('desktop');
       });
     });
@@ -116,11 +116,13 @@ describe('Mobile Responsiveness: Viewport & Interaction Tests', () => {
 
     it('should handle header navigation items visibility by viewport', () => {
       // Mobile: hamburger menu only
-      const mobileNavItems = getViewportType(VIEWPORT_SIZES.mobile.width) === 'mobile' ? [] : ['navbar'];
+      const mobileNavItems =
+        getViewportType(VIEWPORT_SIZES.mobile.width) === 'mobile' ? [] : ['navbar'];
       expect(mobileNavItems).toEqual([]);
 
       // Desktop: full navigation visible
-      const desktopNavItems = getViewportType(VIEWPORT_SIZES.desktop.width) === 'desktop' ? ['navbar'] : [];
+      const desktopNavItems =
+        getViewportType(VIEWPORT_SIZES.desktop.width) === 'desktop' ? ['navbar'] : [];
       expect(desktopNavItems).toEqual(['navbar']);
     });
 
@@ -498,7 +500,7 @@ describe('Mobile Responsiveness: Viewport & Interaction Tests', () => {
 
     it('should optimize images for mobile (responsive images)', () => {
       const viewportWidths = [375, 768, 1920];
-      const imageSources = viewportWidths.map(width => {
+      const imageSources = viewportWidths.map((width) => {
         if (width < 640) return 'image-small.jpg';
         if (width < 900) return 'image-medium.jpg';
         return 'image-large.jpg';
@@ -536,7 +538,7 @@ describe('Mobile Responsiveness: Viewport & Interaction Tests', () => {
 
     it('should use native scroll on mobile, custom on desktop', () => {
       const widths = [375, 1920];
-      const scrollTypes = widths.map(width => {
+      const scrollTypes = widths.map((width) => {
         return width < 640 ? 'native' : 'custom';
       });
 

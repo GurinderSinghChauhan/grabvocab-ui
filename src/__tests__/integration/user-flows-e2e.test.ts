@@ -39,15 +39,10 @@ describe('E2E User Flows: Multi-Step Journeys', () => {
       // Step 2: App fetches suggestions
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
-        json: async () => [
-          { word: 'serendipity' },
-          { word: 'serendipitous' },
-        ],
+        json: async () => [{ word: 'serendipity' }, { word: 'serendipitous' }],
       });
 
-      const suggestionsResult = await store.dispatch(
-        loadSuggestions('serendipity') as any
-      );
+      const suggestionsResult = await store.dispatch(loadSuggestions('serendipity') as any);
       expect(suggestionsResult.payload).toContain('serendipity');
 
       // Step 3: User selects a word, navigate to word page
@@ -62,7 +57,10 @@ describe('E2E User Flows: Multi-Step Journeys', () => {
             {
               word: 'serendipity',
               meanings: [
-                { partOfSpeech: 'noun', definitions: [{ definition: 'finding valuable things by chance' }] },
+                {
+                  partOfSpeech: 'noun',
+                  definitions: [{ definition: 'finding valuable things by chance' }],
+                },
               ],
             },
           ],
@@ -248,11 +246,7 @@ describe('E2E User Flows: Multi-Step Journeys', () => {
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => ({
-          words: [
-            { word: 'word1' },
-            { word: 'word2' },
-            { word: 'word3' },
-          ],
+          words: [{ word: 'word1' }, { word: 'word2' }, { word: 'word3' }],
         }),
       });
 
@@ -308,14 +302,12 @@ describe('E2E User Flows: Multi-Step Journeys', () => {
         });
 
         store.dispatch(setRoute({ page: 'grade', value: grade }));
-        const result = await store.dispatch(
-          loadRouteData({ page: 'grade', value: grade }) as any
-        );
+        const result = await store.dispatch(loadRouteData({ page: 'grade', value: grade }) as any);
 
         expect(result.type).toContain('fulfilled');
         expect(store.getState().routing.route.page).toBe('grade');
         const routeState = store.getState().routing.route as any;
-      expect(routeState.value).toBe(grade);
+        expect(routeState.value).toBe(grade);
       }
     });
 
@@ -329,9 +321,7 @@ describe('E2E User Flows: Multi-Step Journeys', () => {
         status: 404,
       });
 
-      const result = await store.dispatch(
-        loadRouteData({ page: 'grade', value: '99' }) as any
-      );
+      const result = await store.dispatch(loadRouteData({ page: 'grade', value: '99' }) as any);
 
       expect(result.type).toContain('rejected');
       const routeState = store.getState().routing.route as any;
@@ -354,13 +344,11 @@ describe('E2E User Flows: Multi-Step Journeys', () => {
         });
 
         store.dispatch(setRoute({ page: 'exam', value: exam }));
-        const result = await store.dispatch(
-          loadRouteData({ page: 'exam', value: exam }) as any
-        );
+        const result = await store.dispatch(loadRouteData({ page: 'exam', value: exam }) as any);
 
         expect(result.type).toContain('fulfilled');
         const routeState = store.getState().routing.route as any;
-      expect(routeState.value).toBe(exam);
+        expect(routeState.value).toBe(exam);
       }
     });
 
@@ -373,9 +361,7 @@ describe('E2E User Flows: Multi-Step Journeys', () => {
       });
 
       store.dispatch(setRoute({ page: 'exam', value: 'UNKNOWN' }));
-      const result = await store.dispatch(
-        loadRouteData({ page: 'exam', value: 'UNKNOWN' }) as any
-      );
+      const result = await store.dispatch(loadRouteData({ page: 'exam', value: 'UNKNOWN' }) as any);
 
       expect(result.type).toContain('fulfilled');
     });

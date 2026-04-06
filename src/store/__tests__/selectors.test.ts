@@ -1,9 +1,22 @@
 import { configureStore } from '@reduxjs/toolkit';
-import authReducer, { setAuthUser, setAuthLoading, setAuthMessage } from '../../store/slices/authSlice';
+import authReducer, {
+  setAuthUser,
+  setAuthLoading,
+  setAuthMessage,
+} from '../../store/slices/authSlice';
 import themeReducer, { toggleTheme } from '../../store/slices/themeSlice';
 import routingReducer from '../../store/slices/routingSlice';
-import uiReducer, { setDrawerOpen, setOpenDropdown, setQuery, setSuggestions } from '../../store/slices/uiSlice';
-import wordsReducer, { setWordOfTheDay, setCurrentWord, setCollectionWords } from '../../store/slices/wordsSlice';
+import uiReducer, {
+  setDrawerOpen,
+  setOpenDropdown,
+  setQuery,
+  setSuggestions,
+} from '../../store/slices/uiSlice';
+import wordsReducer, {
+  setWordOfTheDay,
+  setCurrentWord,
+  setCollectionWords,
+} from '../../store/slices/wordsSlice';
 import speechReducer from '../../store/slices/speechSlice';
 import {
   selectAuthUser,

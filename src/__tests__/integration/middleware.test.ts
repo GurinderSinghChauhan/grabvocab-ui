@@ -175,7 +175,7 @@ describe('Redux Middleware: Logging & Tracking', () => {
           routing: routingReducer,
           speech: speechReducer,
         },
-        middleware: getDefaultMiddleware =>
+        middleware: (getDefaultMiddleware) =>
           getDefaultMiddleware().concat(() => (next: any) => (action: any) => {
             dispatches.push(action.type);
             return next(action);
@@ -202,7 +202,7 @@ describe('Redux Middleware: Logging & Tracking', () => {
           routing: routingReducer,
           speech: speechReducer,
         },
-        middleware: getDefaultMiddleware =>
+        middleware: (getDefaultMiddleware) =>
           getDefaultMiddleware().concat(() => (next: any) => (action: any) => {
             timestamps.push(Date.now());
             return next(action);
@@ -210,7 +210,7 @@ describe('Redux Middleware: Logging & Tracking', () => {
       });
 
       store.dispatch(setAuthUser({ id: '1', email: 'test@test.com', username: 'testuser' }));
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
       store.dispatch(toggleTheme());
 
       expect(timestamps.length).toBe(2);
@@ -288,7 +288,7 @@ describe('Redux Middleware: Logging & Tracking', () => {
           routing: routingReducer,
           speech: speechReducer,
         },
-        middleware: getDefaultMiddleware =>
+        middleware: (getDefaultMiddleware) =>
           getDefaultMiddleware().concat(() => (next: any) => (action: any) => {
             actionSequence.push(action.type);
             return next(action);
@@ -319,7 +319,7 @@ describe('Redux Middleware: Logging & Tracking', () => {
           routing: routingReducer,
           speech: speechReducer,
         },
-        middleware: getDefaultMiddleware =>
+        middleware: (getDefaultMiddleware) =>
           getDefaultMiddleware().concat((store: any) => (next: any) => (action: any) => {
             const result = next(action);
             stateSnapshots.push({
@@ -412,7 +412,7 @@ describe('Redux Middleware: Logging & Tracking', () => {
           routing: routingReducer,
           speech: speechReducer,
         },
-        middleware: getDefaultMiddleware =>
+        middleware: (getDefaultMiddleware) =>
           getDefaultMiddleware().concat(() => (next: any) => (action: any) => {
             const start = performance.now();
             const result = next(action);
@@ -427,7 +427,7 @@ describe('Redux Middleware: Logging & Tracking', () => {
       store.dispatch(setDrawerOpen(true));
 
       expect(timings.length).toBe(3);
-      timings.forEach(timing => {
+      timings.forEach((timing) => {
         expect(timing).toBeLessThan(100); // Should be very fast
       });
     });

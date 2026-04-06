@@ -8,10 +8,7 @@ export const selectAuthUser = (state: RootState) => state.auth.user;
 export const selectAuthLoading = (state: RootState) => state.auth.loading;
 export const selectAuthMessage = (state: RootState) => state.auth.message;
 
-export const selectIsAuthenticated = createSelector(
-  [selectAuthUser],
-  user => user !== null
-);
+export const selectIsAuthenticated = createSelector([selectAuthUser], (user) => user !== null);
 
 export const selectAuthState = createSelector(
   [selectAuthUser, selectAuthLoading, selectAuthMessage],
@@ -27,15 +24,9 @@ export const selectAuthState = createSelector(
  */
 export const selectThemeMode = (state: RootState) => state.theme.mode;
 
-export const selectIsLightTheme = createSelector(
-  [selectThemeMode],
-  mode => mode === 'light'
-);
+export const selectIsLightTheme = createSelector([selectThemeMode], (mode) => mode === 'light');
 
-export const selectIsDarkTheme = createSelector(
-  [selectThemeMode],
-  mode => mode === 'dark'
-);
+export const selectIsDarkTheme = createSelector([selectThemeMode], (mode) => mode === 'dark');
 
 /**
  * Routing Selectors
@@ -71,7 +62,13 @@ export const selectWordsLoading = (state: RootState) => state.words.loading;
 export const selectWordsError = (state: RootState) => state.words.backendError;
 
 export const selectWordsState = createSelector(
-  [selectWordOfTheDay, selectCurrentWord, selectCollectionWords, selectWordsLoading, selectWordsError],
+  [
+    selectWordOfTheDay,
+    selectCurrentWord,
+    selectCollectionWords,
+    selectWordsLoading,
+    selectWordsError,
+  ],
   (wordOfTheDay, currentWord, collectionWords, loading, error) => ({
     wordOfTheDay,
     currentWord,
@@ -81,10 +78,7 @@ export const selectWordsState = createSelector(
   })
 );
 
-export const selectWordCount = createSelector(
-  [selectCollectionWords],
-  words => words.length
-);
+export const selectWordCount = createSelector([selectCollectionWords], (words) => words.length);
 
 /**
  * Speech Selectors

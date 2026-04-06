@@ -1,5 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
-import authReducer, { setAuthUser, setAuthLoading, setAuthMessage } from '../../store/slices/authSlice';
+import authReducer, {
+  setAuthUser,
+  setAuthLoading,
+  setAuthMessage,
+} from '../../store/slices/authSlice';
 import themeReducer, { toggleTheme } from '../../store/slices/themeSlice';
 import uiReducer, { setDrawerOpen, setQuery } from '../../store/slices/uiSlice';
 import wordsReducer, { setCollectionWords } from '../../store/slices/wordsSlice';
