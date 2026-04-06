@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer, { setAuthUser, setAuthLoading, setAuthMessage } from '../../store/slices/authSlice';
 import themeReducer, { toggleTheme } from '../../store/slices/themeSlice';
-import uiReducer, { setDrawerOpen, setOpenDropdown, setQuery } from '../../store/slices/uiSlice';
+import uiReducer, { setDrawerOpen, setQuery } from '../../store/slices/uiSlice';
 import wordsReducer, { setCollectionWords } from '../../store/slices/wordsSlice';
 import routingReducer from '../../store/slices/routingSlice';
 import speechReducer from '../../store/slices/speechSlice';
@@ -10,7 +10,6 @@ import {
   selectIsAuthenticated,
   selectThemeMode,
   selectUIState,
-  selectWordsState,
   selectAppState,
   selectWordCount,
 } from '../../store/selectors';
@@ -224,13 +223,7 @@ describe('Performance: Selector Memoization & Optimization', () => {
     it('should efficiently compose multiple selectors', () => {
       const store = createTestStore();
 
-      // Compose selectors
-      const isAuth = selectIsAuthenticated(store.getState());
-      const theme = selectThemeMode(store.getState());
-      const wordCount = selectWordCount(store.getState());
-      const uiState = selectUIState(store.getState());
-
-      // Call same selectors multiple times
+      // Call same selectors multiple times (without storing unused variables)
       const values1 = [
         selectIsAuthenticated(store.getState()),
         selectThemeMode(store.getState()),

@@ -4,7 +4,7 @@ import themeReducer, { toggleTheme } from '../../store/slices/themeSlice';
 import routingReducer from '../../store/slices/routingSlice';
 import uiReducer, { setDrawerOpen, setOpenDropdown, setQuery, setSuggestions } from '../../store/slices/uiSlice';
 import wordsReducer, { setWordOfTheDay, setCurrentWord, setCollectionWords } from '../../store/slices/wordsSlice';
-import speechReducer, { setPreferredVoice, setIsSpeaking } from '../../store/slices/speechSlice';
+import speechReducer from '../../store/slices/speechSlice';
 import {
   selectAuthUser,
   selectAuthLoading,

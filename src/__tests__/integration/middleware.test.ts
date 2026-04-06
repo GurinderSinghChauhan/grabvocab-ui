@@ -1,4 +1,4 @@
-import { configureStore, PayloadAction } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
 import authReducer, { setAuthUser, logout } from '../../store/slices/authSlice';
 import themeReducer, { toggleTheme } from '../../store/slices/themeSlice';
 import uiReducer, { setDrawerOpen } from '../../store/slices/uiSlice';
@@ -176,7 +176,7 @@ describe('Redux Middleware: Logging & Tracking', () => {
           speech: speechReducer,
         },
         middleware: getDefaultMiddleware =>
-          getDefaultMiddleware().concat((store: any) => (next: any) => (action: any) => {
+          getDefaultMiddleware().concat(() => (next: any) => (action: any) => {
             dispatches.push(action.type);
             return next(action);
           }),
@@ -203,7 +203,7 @@ describe('Redux Middleware: Logging & Tracking', () => {
           speech: speechReducer,
         },
         middleware: getDefaultMiddleware =>
-          getDefaultMiddleware().concat((store: any) => (next: any) => (action: any) => {
+          getDefaultMiddleware().concat(() => (next: any) => (action: any) => {
             timestamps.push(Date.now());
             return next(action);
           }),
@@ -289,7 +289,7 @@ describe('Redux Middleware: Logging & Tracking', () => {
           speech: speechReducer,
         },
         middleware: getDefaultMiddleware =>
-          getDefaultMiddleware().concat((store: any) => (next: any) => (action: any) => {
+          getDefaultMiddleware().concat(() => (next: any) => (action: any) => {
             actionSequence.push(action.type);
             return next(action);
           }),
@@ -413,7 +413,7 @@ describe('Redux Middleware: Logging & Tracking', () => {
           speech: speechReducer,
         },
         middleware: getDefaultMiddleware =>
-          getDefaultMiddleware().concat((store: any) => (next: any) => (action: any) => {
+          getDefaultMiddleware().concat(() => (next: any) => (action: any) => {
             const start = performance.now();
             const result = next(action);
             const duration = performance.now() - start;

@@ -1,6 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
 import routingReducer, { setRoute, setPage } from '../../store/slices/routingSlice';
-import type { RouteState } from '../../types/app';
 
 describe('Integration: Navigation Flow', () => {
   const store = configureStore({
