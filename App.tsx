@@ -14,7 +14,6 @@ import * as Speech from 'expo-speech';
 import { Platform } from 'react-native';
 
 import { api } from './src/config/api';
-import { loadRouteData } from './src/store/thunks';
 import { themeMap } from './src/config/themes';
 import { examOptions, gradeOptions, subjectOptions } from './src/data/sampleWords';
 import { ReduxProvider } from './src/store/ReduxProvider';
@@ -32,8 +31,6 @@ import {
   toggleTheme,
   logout,
   setQuery,
-  setSuggestions,
-  setLimit,
   setDrawerOpen,
   setOpenDropdown,
 } from './src/store/slices';
@@ -50,17 +47,18 @@ const navItems: NavItem[] = [
 ];
 
 function AppComponent() {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const [fontsLoaded] = useFonts({
-    AntDesign: require('./assets/fonts/AntDesign.ttf'),
-    Entypo: require('./assets/fonts/Entypo.ttf'),
-    Feather: require('./assets/fonts/Feather.ttf'),
-    FontAwesome: require('./assets/fonts/FontAwesome.ttf'),
-    'FontAwesome5Free-Solid': require('./assets/fonts/FontAwesome5_Solid.ttf'),
-    'FontAwesome5Free-Regular': require('./assets/fonts/FontAwesome5_Regular.ttf'),
-    'FontAwesome5Free-Light': require('./assets/fonts/FontAwesome5_Regular.ttf'),
-    'FontAwesome5Free-Brand': require('./assets/fonts/FontAwesome5_Brands.ttf'),
-    MaterialCommunityIcons: require('./assets/fonts/MaterialCommunityIcons.ttf'),
-    MaterialIcons: require('./assets/fonts/MaterialIcons.ttf'),
+    AntDesign: require('./assets/fonts/AntDesign.ttf') as never,
+    Entypo: require('./assets/fonts/Entypo.ttf') as never,
+    Feather: require('./assets/fonts/Feather.ttf') as never,
+    FontAwesome: require('./assets/fonts/FontAwesome.ttf') as never,
+    'FontAwesome5Free-Solid': require('./assets/fonts/FontAwesome5_Solid.ttf') as never,
+    'FontAwesome5Free-Regular': require('./assets/fonts/FontAwesome5_Regular.ttf') as never,
+    'FontAwesome5Free-Light': require('./assets/fonts/FontAwesome5_Regular.ttf') as never,
+    'FontAwesome5Free-Brand': require('./assets/fonts/FontAwesome5_Brands.ttf') as never,
+    MaterialCommunityIcons: require('./assets/fonts/MaterialCommunityIcons.ttf') as never,
+    MaterialIcons: require('./assets/fonts/MaterialIcons.ttf') as never,
   });
 
   // Redux selectors - all state now comes from Redux
@@ -343,7 +341,7 @@ function AppComponent() {
                 page={page}
                 totalPages={totalPages}
                 onPageChange={(p) => dispatch(setPage(p))}
-                onLimitChange={(l) => {}}
+                onLimitChange={() => {}}
                 isWide={isTabletUp}
                 loading={loading}
                 backendError={backendError}
@@ -360,7 +358,7 @@ function AppComponent() {
                 page={page}
                 totalPages={totalPages}
                 onPageChange={(p) => dispatch(setPage(p))}
-                onLimitChange={(l) => {}}
+                onLimitChange={() => {}}
                 isWide={isTabletUp}
                 loading={loading}
                 backendError={backendError}
@@ -377,7 +375,7 @@ function AppComponent() {
                 page={page}
                 totalPages={totalPages}
                 onPageChange={(p) => dispatch(setPage(p))}
-                onLimitChange={(l) => {}}
+                onLimitChange={() => {}}
                 isWide={isTabletUp}
                 loading={loading}
                 backendError={backendError}
@@ -394,7 +392,7 @@ function AppComponent() {
                 page={page}
                 totalPages={totalPages}
                 onPageChange={(p) => dispatch(setPage(p))}
-                onLimitChange={(l) => {}}
+                onLimitChange={() => {}}
                 isWide={isTabletUp}
                 loading={loading}
                 backendError={backendError}
