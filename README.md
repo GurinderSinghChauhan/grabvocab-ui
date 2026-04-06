@@ -63,3 +63,22 @@ This app expects the backend to provide:
 npx tsc --noEmit
 npx expo export --platform web
 ```
+
+## Mobile Release Artifacts
+
+GitHub Actions can now build mobile artifacts and attach them to a GitHub Release through
+`.github/workflows/mobile-release.yml`.
+
+- Android output: `grabvocab-android-debug-<tag>.apk`
+- iOS output: `grabvocab-ios-simulator-<tag>.zip`
+
+The workflow runs when:
+
+- you publish a GitHub Release
+- you trigger the `Mobile Release Artifacts` workflow manually and provide a tag
+
+Notes:
+
+- The Android artifact is a CI-built debug APK suitable for direct download and testing.
+- The iOS artifact is a simulator `.app` bundled as a zip because unsigned device `.ipa` builds
+  require Apple signing credentials.

@@ -164,6 +164,19 @@ describe('Redux Thunks: Error Handling & Edge Cases', () => {
         expect(result.type).toMatch(/rejected/);
       });
 
+      it('should fall back to local word data when backend lookup fails for a seeded word', async () => {
+        (api.define as jest.Mock).mockRejectedValueOnce(new Error("Word 'adapt' not found"));
+
+        const store = createTestStore();
+        const route = { page: 'word' as const, word: 'adapt' };
+        const result = await store.dispatch(loadRouteData(route));
+
+        expect(result.type).toMatch(/fulfilled/);
+        const payload = result.payload as any;
+        expect(payload?.type).toBe('currentWord');
+        expect(payload?.data.word).toBe('adapt');
+      });
+
       it('should handle unknown errors during word lookup', async () => {
         (api.define as jest.Mock).mockRejectedValueOnce('Unknown error');
 
@@ -232,17 +245,17 @@ describe('Redux Thunks: Error Handling & Edge Cases', () => {
       const scenarios = [
         {
           page: 'subject' as const,
-          value: 'Mathematics',
+          value: 'mathematics',
           apiMethod: 'subject' as const,
         },
         {
           page: 'grade' as const,
-          value: '10',
+          value: 'grade-10',
           apiMethod: 'grade' as const,
         },
         {
           page: 'exam' as const,
-          value: 'SAT',
+          value: 'sat',
           apiMethod: 'exam' as const,
         },
       ];
@@ -285,9 +298,21 @@ describe('Redux Thunks: Error Handling & Edge Cases', () => {
           const route = { page, value } as RouteState;
           const result = await store.dispatch(loadRouteData(route));
 
-          // Error causes rejection; payload contains the error message
-          expect(result.type).toMatch(/rejected/);
+          expect(result.type).toMatch(/fulfilled/);
+          const payload = result.payload as any;
+          expect(payload?.type).toBe('collectionWords');
+          expect(payload?.data.length).toBeGreaterThan(0);
         });
+      });
+
+      it('should reject subject route errors when there is no local fallback data', async () => {
+        (api.subject as jest.Mock).mockRejectedValueOnce(new Error('subject not found'));
+
+        const store = createTestStore();
+        const route = { page: 'subject' as const, value: 'unknown-subject' };
+        const result = await store.dispatch(loadRouteData(route));
+
+        expect(result.type).toMatch(/rejected/);
       });
     });
 

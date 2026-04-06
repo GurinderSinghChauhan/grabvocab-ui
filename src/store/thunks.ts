@@ -1,7 +1,24 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { api } from '../config/api';
+import { sampleWords } from '../data/sampleWords';
 import { normalizeWord } from '../utils/normalizeWord';
 import type { RouteState } from '../types/app';
+
+function getLocalWord(word: string) {
+  return sampleWords.find((entry) => entry.word.toLowerCase() === word.toLowerCase());
+}
+
+function getLocalCollection(route: Extract<RouteState, { page: 'subject' | 'grade' | 'exam' }>) {
+  if (route.page === 'subject') {
+    return sampleWords.filter((entry) => entry.subjectSlug === route.value);
+  }
+
+  if (route.page === 'grade') {
+    return sampleWords.filter((entry) => entry.gradeSlug === route.value);
+  }
+
+  return sampleWords.filter((entry) => entry.examSlug === route.value);
+}
 
 /**
  * Async thunk for fetching search suggestions
@@ -41,11 +58,23 @@ export const loadRouteData = createAsyncThunk('words/loadRouteData', async (rout
 
   try {
     if (route.page === 'word') {
-      const data = await api.define(route.word);
-      return {
-        type: 'currentWord' as const,
-        data: normalizeWord(data.result),
-      };
+      try {
+        const data = await api.define(route.word);
+        return {
+          type: 'currentWord' as const,
+          data: normalizeWord(data.result),
+        };
+      } catch (error) {
+        const fallbackWord = getLocalWord(route.word);
+        if (!fallbackWord) {
+          throw error;
+        }
+
+        return {
+          type: 'currentWord' as const,
+          data: normalizeWord(fallbackWord),
+        };
+      }
     }
 
     if (route.page === 'dictionary') {
@@ -56,28 +85,30 @@ export const loadRouteData = createAsyncThunk('words/loadRouteData', async (rout
       };
     }
 
-    if (route.page === 'subject') {
-      const data = await api.subject(route.value, 1, 50);
-      return {
-        type: 'collectionWords' as const,
-        data: data.words.map(normalizeWord),
-      };
-    }
+    if (route.page === 'subject' || route.page === 'grade' || route.page === 'exam') {
+      try {
+        const data =
+          route.page === 'subject'
+            ? await api.subject(route.value, 1, 50)
+            : route.page === 'grade'
+              ? await api.grade(route.value, 1, 50)
+              : await api.exam(route.value, 1, 50);
 
-    if (route.page === 'grade') {
-      const data = await api.grade(route.value, 1, 50);
-      return {
-        type: 'collectionWords' as const,
-        data: data.words.map(normalizeWord),
-      };
-    }
+        return {
+          type: 'collectionWords' as const,
+          data: data.words.map(normalizeWord),
+        };
+      } catch (error) {
+        const fallbackWords = getLocalCollection(route);
+        if (!fallbackWords.length) {
+          throw error;
+        }
 
-    if (route.page === 'exam') {
-      const data = await api.exam(route.value, 1, 50);
-      return {
-        type: 'collectionWords' as const,
-        data: data.words.map(normalizeWord),
-      };
+        return {
+          type: 'collectionWords' as const,
+          data: fallbackWords.map(normalizeWord),
+        };
+      }
     }
 
     return null;

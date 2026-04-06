@@ -2,7 +2,7 @@ import words from 'an-array-of-english-words';
 import didYouMean from 'didyoumean';
 import { StatusBar } from 'expo-status-bar';
 import * as WebBrowser from 'expo-web-browser';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { ActivityIndicator, SafeAreaView, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { useFonts } from 'expo-font';
 import { useAppDispatch, useAppSelector } from './src/store/hooks';
@@ -34,6 +34,7 @@ import {
   setDrawerOpen,
   setOpenDropdown,
 } from './src/store/slices';
+import { loadRouteData } from './src/store/thunks';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -104,6 +105,10 @@ function AppComponent() {
   );
 
   const totalPages = Math.max(1, Math.ceil(collectionWords.length / limit));
+
+  useEffect(() => {
+    void dispatch(loadRouteData(route));
+  }, [dispatch, route]);
 
   if (!fontsLoaded) {
     return (
