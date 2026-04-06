@@ -1,6 +1,8 @@
 name: Mobile Release Artifacts
 
 on:
+  push:
+    branches: [main]
   release:
     types: [published]
   workflow_dispatch:
@@ -14,18 +16,59 @@ permissions:
   contents: write
 
 concurrency:
-  group: mobile-release-${{ github.event.release.tag_name || inputs.tag }}
+  group: mobile-release-${{ github.event.release.tag_name || inputs.tag || github.sha }}
   cancel-in-progress: false
 
 env:
   NODE_VERSION: '20'
   JAVA_VERSION: '17'
-  RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
 
 jobs:
+  prepare-release:
+    name: Prepare Release Metadata
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    outputs:
+      release_tag: ${{ steps.tag.outputs.release_tag }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Compute release tag
+        id: tag
+        run: |
+          APP_VERSION=$(node -p "require('./package.json').version")
+
+          if [ "${{ github.event_name }}" = "release" ]; then
+            RELEASE_TAG="${{ github.event.release.tag_name }}"
+          elif [ -n "${{ inputs.tag }}" ]; then
+            RELEASE_TAG="${{ inputs.tag }}"
+          else
+            RELEASE_TAG="v${APP_VERSION}-build.${{ github.run_number }}"
+          fi
+
+          echo "release_tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Create tag if needed
+        env:
+          RELEASE_TAG: ${{ steps.tag.outputs.release_tag }}
+        run: |
+          if git rev-parse "${RELEASE_TAG}" >/dev/null 2>&1; then
+            echo "Tag ${RELEASE_TAG} already exists"
+          else
+            git tag "${RELEASE_TAG}" "${GITHUB_SHA}"
+            git push origin "${RELEASE_TAG}"
+          fi
+
   build-android:
     name: Build Android APK
     runs-on: ubuntu-latest
+    needs: prepare-release
+    env:
+      RELEASE_TAG: ${{ needs.prepare-release.outputs.release_tag }}
 
     steps:
       - name: Check out repository
@@ -70,6 +113,9 @@ jobs:
   build-ios:
     name: Build iOS Simulator App
     runs-on: macos-latest
+    needs: prepare-release
+    env:
+      RELEASE_TAG: ${{ needs.prepare-release.outputs.release_tag }}
 
     steps:
       - name: Check out repository
@@ -117,7 +163,9 @@ jobs:
   attach-to-release:
     name: Attach Assets To Release
     runs-on: ubuntu-latest
-    needs: [build-android, build-ios]
+    needs: [prepare-release, build-android, build-ios]
+    env:
+      RELEASE_TAG: ${{ needs.prepare-release.outputs.release_tag }}
 
     steps:
       - name: Download Android artifact

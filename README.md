@@ -74,8 +74,13 @@ GitHub Actions can now build mobile artifacts and attach them to a GitHub Releas
 
 The workflow runs when:
 
+- you push to `main` and the workflow creates a release tag automatically
 - you publish a GitHub Release
 - you trigger the `Mobile Release Artifacts` workflow manually and provide a tag
+
+Automatic tags created on `main` pushes use this format:
+
+- `v<package-version>-build.<github-run-number>`
 
 Notes:
 
