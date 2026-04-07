@@ -201,6 +201,9 @@ export const styles = StyleSheet.create({
   drawerOverlay: {
     flex: 1,
   },
+  drawerBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+  },
   drawerPanel: {
     position: 'absolute',
     top: 0,
@@ -209,6 +212,9 @@ export const styles = StyleSheet.create({
     width: 320,
     borderLeftWidth: 1,
     padding: 20,
+  },
+  drawerScrollContent: {
+    paddingBottom: 20,
   },
   drawerHeader: {
     flexDirection: 'row',

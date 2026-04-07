@@ -2,6 +2,7 @@ import {
   Image,
   Modal,
   Pressable,
+  ScrollView,
   Text,
   TextInput,
   View,
@@ -133,79 +134,84 @@ export function MobileHeader({
       </View>
 
       <Modal visible={drawerOpen} transparent animationType="fade" onRequestClose={onClose}>
-        <Pressable
+        <View
           style={[styles.drawerOverlay, { backgroundColor: colors.overlay }]}
-          onPress={onClose}
         >
-          <Pressable
+          <Pressable style={styles.drawerBackdrop} onPress={onClose} />
+          <View
             style={[
               styles.drawerPanel,
               { backgroundColor: colors.headerColor, borderLeftColor: colors.borderColor },
             ]}
-            onPress={() => {}}
           >
-            <View style={styles.drawerHeader}>
-              <Text style={[styles.drawerTitle, { color: colors.accentColor }]}>Menu</Text>
-              <Pressable onPress={onClose} style={styles.drawerCloseButton}>
-                <Feather name="x" size={20} color={colors.accentColor} />
-              </Pressable>
-            </View>
+            <ScrollView
+              contentContainerStyle={styles.drawerScrollContent}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator
+            >
+              <View style={styles.drawerHeader}>
+                <Text style={[styles.drawerTitle, { color: colors.accentColor }]}>Menu</Text>
+                <Pressable onPress={onClose} style={styles.drawerCloseButton}>
+                  <Feather name="x" size={20} color={colors.accentColor} />
+                </Pressable>
+              </View>
 
-            <View style={styles.drawerSection}>
-              {topButtons.map((label) => (
-                <MobileDrawerButton
-                  key={label}
-                  active={isActive(label)}
-                  label={label}
-                  colors={colors}
-                  onPress={() => void onHeaderButton(label)}
-                />
-              ))}
-            </View>
-
-            <View style={styles.drawerSection}>
-              {navItems.map((item) => {
-                const hasDropdown = 'dropdown' in item && item.dropdown !== undefined;
-                const dropdownLabel = hasDropdown ? item.label : null;
-
-                return hasDropdown && item.dropdown ? (
-                  <View key={item.label} style={styles.drawerGroup}>
-                    <Text style={[styles.drawerGroupTitle, { color: colors.accentColor }]}>
-                      {item.label}
-                    </Text>
-                    {item.dropdown.map((subItem) => (
-                      <Pressable
-                        key={subItem.value}
-                        onPress={() =>
-                          onDropdownSelect(
-                            dropdownLabel as 'Subject' | 'Grades' | 'Exam',
-                            subItem.value
-                          )
-                        }
-                        style={[
-                          styles.drawerSubButton,
-                          { backgroundColor: colors.backgroundColor || colors.buttonBg },
-                        ]}
-                      >
-                        <Text style={[styles.drawerSubButtonText, { color: colors.primaryText }]}>
-                          {subItem.label}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                ) : (
+              <View style={styles.drawerSection}>
+                {topButtons.map((label) => (
                   <MobileDrawerButton
-                    key={item.label}
-                    active={isActive(item.label)}
-                    label={item.label}
+                    key={label}
+                    active={isActive(label)}
+                    label={label}
                     colors={colors}
-                    onPress={() => void onHeaderButton(item.label)}
+                    onPress={() => void onHeaderButton(label)}
                   />
-                );
-              })}
-            </View>
-          </Pressable>
-        </Pressable>
+                ))}
+              </View>
+
+              <View style={styles.drawerSection}>
+                {navItems.map((item) => {
+                  const hasDropdown = 'dropdown' in item && item.dropdown !== undefined;
+                  const dropdownLabel = hasDropdown ? item.label : null;
+
+                  return hasDropdown && item.dropdown ? (
+                    <View key={item.label} style={styles.drawerGroup}>
+                      <Text style={[styles.drawerGroupTitle, { color: colors.accentColor }]}>
+                        {item.label}
+                      </Text>
+                      {item.dropdown.map((subItem) => (
+                        <Pressable
+                          key={subItem.value}
+                          onPress={() =>
+                            onDropdownSelect(
+                              dropdownLabel as 'Subject' | 'Grades' | 'Exam',
+                              subItem.value
+                            )
+                          }
+                          style={[
+                            styles.drawerSubButton,
+                            { backgroundColor: colors.backgroundColor || colors.buttonBg },
+                          ]}
+                        >
+                          <Text style={[styles.drawerSubButtonText, { color: colors.primaryText }]}>
+                            {subItem.label}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  ) : (
+                    <MobileDrawerButton
+                      key={item.label}
+                      active={isActive(item.label)}
+                      label={item.label}
+                      colors={colors}
+                      onPress={() => void onHeaderButton(item.label)}
+                    />
+                  );
+                })}
+              </View>
+            </ScrollView>
+          </View>
+        </View>
       </Modal>
     </View>
   );
