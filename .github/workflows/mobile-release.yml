@@ -95,20 +95,20 @@ jobs:
       - name: Generate Android native project
         run: npx expo prebuild --platform android --non-interactive
 
-      - name: Build Android debug APK
+      - name: Build Android release APK
         working-directory: android
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleRelease
 
       - name: Prepare Android artifact
         run: |
           mkdir -p release-assets
-          cp android/app/build/outputs/apk/debug/app-debug.apk "release-assets/grabvocab-android-debug-${RELEASE_TAG}.apk"
+          cp android/app/build/outputs/apk/release/app-release.apk "release-assets/grabvocab-android-${RELEASE_TAG}.apk"
 
       - name: Upload Android artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-release-asset
-          path: release-assets/grabvocab-android-debug-*.apk
+          path: release-assets/grabvocab-android-*.apk
 
   build-ios:
     name: Build iOS Simulator App
