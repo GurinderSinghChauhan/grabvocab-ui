@@ -134,9 +134,7 @@ export function MobileHeader({
       </View>
 
       <Modal visible={drawerOpen} transparent animationType="fade" onRequestClose={onClose}>
-        <View
-          style={[styles.drawerOverlay, { backgroundColor: colors.overlay }]}
-        >
+        <View style={[styles.drawerOverlay, { backgroundColor: colors.overlay }]}>
           <Pressable style={styles.drawerBackdrop} onPress={onClose} />
           <View
             style={[
