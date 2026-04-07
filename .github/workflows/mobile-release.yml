@@ -146,6 +146,7 @@ jobs:
             -configuration Release \
             -sdk iphonesimulator \
             -derivedDataPath ios/build \
+            SWIFT_VERSION=5 \
             CODE_SIGNING_ALLOWED=NO
 
       - name: Package iOS artifact
