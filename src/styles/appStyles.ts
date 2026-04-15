@@ -429,6 +429,29 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
   },
+  wordDetailLayout: {
+    flexDirection: 'column',
+    gap: 20,
+  },
+  wordDetailLayoutWide: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  wordImageWrap: {
+    width: '100%',
+    maxWidth: 320,
+    borderWidth: 1,
+    borderRadius: 16,
+    overflow: 'hidden',
+    alignSelf: 'center',
+  },
+  wordImage: {
+    width: '100%',
+    aspectRatio: 1,
+  },
+  wordDetailContent: {
+    flex: 1,
+  },
   detailWordTitle: {
     fontSize: 38,
     fontWeight: '700',
