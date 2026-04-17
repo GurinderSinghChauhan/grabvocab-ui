@@ -3,12 +3,27 @@ import didYouMean from 'didyoumean';
 import { StatusBar } from 'expo-status-bar';
 import * as WebBrowser from 'expo-web-browser';
 import { useEffect, useMemo } from 'react';
-import { ActivityIndicator, SafeAreaView, ScrollView, Text, View, useWindowDimensions } from 'react-native';
+import {
+  ActivityIndicator,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import { useFonts } from 'expo-font';
 import { useAppDispatch, useAppSelector } from './src/store/hooks';
 
 import { DesktopHeader, MobileHeader } from './src/components/Header';
-import { AboutPage, AuthPage, HomePage, QuizPage, SharePage, WordListPage, WordPage } from './src/components/pages';
+import {
+  AboutPage,
+  AuthPage,
+  HomePage,
+  QuizPage,
+  SharePage,
+  WordListPage,
+  WordPage,
+} from './src/components/pages';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Speech from 'expo-speech';
 import { Platform } from 'react-native';
@@ -112,9 +127,16 @@ function AppComponent() {
 
   if (!fontsLoaded) {
     return (
-      <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }]}>
+      <SafeAreaView
+        style={[
+          styles.safeArea,
+          { justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' },
+        ]}
+      >
         <ActivityIndicator size="large" color="#3b82f6" />
-        <Text style={{ marginTop: 16, color: '#1a1a1a', fontFamily: 'Courier', fontWeight: '700' }}>Loading...</Text>
+        <Text style={{ marginTop: 16, color: '#1a1a1a', fontFamily: 'Courier', fontWeight: '700' }}>
+          Loading...
+        </Text>
       </SafeAreaView>
     );
   }
@@ -176,7 +198,9 @@ function AppComponent() {
       return gradeOptions.find((item) => item.value === route.value)?.label ?? route.value;
     }
     if (route.page === 'exam') {
-      return (examOptions.find((item) => item.value === route.value)?.label ?? route.value).toUpperCase();
+      return (
+        examOptions.find((item) => item.value === route.value)?.label ?? route.value
+      ).toUpperCase();
     }
     return '';
   };
@@ -288,7 +312,7 @@ function AppComponent() {
         ) : (
           <DesktopHeader
             colors={colors}
-            openDropdown={(openDropdown as any)}
+            openDropdown={openDropdown as any}
             setOpenDropdown={(d) => dispatch(d ? setOpenDropdown(d) : closeDropdown())}
             onToggleTheme={() => dispatch(toggleTheme())}
             theme={theme}
@@ -350,6 +374,7 @@ function AppComponent() {
                 isWide={isTabletUp}
                 loading={loading}
                 backendError={backendError}
+                cardVariant="word"
               />
             )}
 
@@ -405,7 +430,9 @@ function AppComponent() {
             )}
 
             {route.page === 'about' && <AboutPage colors={colors} />}
-            {route.page === 'share' && <SharePage colors={colors} word={currentWord ?? wordOfTheDay} />}
+            {route.page === 'share' && (
+              <SharePage colors={colors} word={currentWord ?? wordOfTheDay} />
+            )}
             {route.page === 'quiz' && (
               <QuizPage
                 colors={colors}

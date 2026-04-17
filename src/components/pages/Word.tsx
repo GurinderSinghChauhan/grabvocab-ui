@@ -39,6 +39,20 @@ export function WordPage({
     );
   }
 
+  return <WordDefinitionCard colors={colors} word={word} onSpeak={onSpeak} isWide={isWide} />;
+}
+
+export function WordDefinitionCard({
+  colors,
+  word,
+  onSpeak,
+  isWide,
+}: {
+  colors: ThemeColors;
+  word: WordData;
+  onSpeak: (word: string) => void;
+  isWide: boolean;
+}) {
   return (
     <View
       style={[
@@ -51,6 +65,7 @@ export function WordPage({
           <View
             style={[
               styles.wordImageWrap,
+              isWide && styles.wordImageWrapWide,
               { borderColor: colors.borderColor, backgroundColor: colors.buttonBg },
             ]}
           >
@@ -58,7 +73,12 @@ export function WordPage({
           </View>
         ) : null}
 
-        <View style={styles.wordDetailContent}>
+        <View
+          style={[
+            styles.wordDetailContent,
+            isWide && word.imageURL && styles.wordDetailContentWithImage,
+          ]}
+        >
           <View style={styles.wordTitleRow}>
             <Text style={styles.detailWordTitle}>{word.word}</Text>
             <Pressable onPress={() => onSpeak(word.word)}>

@@ -435,15 +435,19 @@ export const styles = StyleSheet.create({
   },
   wordDetailLayoutWide: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'stretch',
+    gap: 0,
   },
   wordImageWrap: {
     width: '100%',
-    maxWidth: 320,
     borderWidth: 1,
     borderRadius: 16,
     overflow: 'hidden',
     alignSelf: 'center',
+  },
+  wordImageWrapWide: {
+    flex: 1,
+    alignSelf: 'stretch',
   },
   wordImage: {
     width: '100%',
@@ -451,6 +455,9 @@ export const styles = StyleSheet.create({
   },
   wordDetailContent: {
     flex: 1,
+  },
+  wordDetailContentWithImage: {
+    paddingLeft: 20,
   },
   detailWordTitle: {
     fontSize: 38,
@@ -506,6 +513,13 @@ export const styles = StyleSheet.create({
   },
   wordListStack: {
     gap: 16,
+  },
+  dictionaryWordList: {
+    alignItems: 'stretch',
+  },
+  dictionaryWordListWide: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   subjectCard: {
     borderWidth: 1,

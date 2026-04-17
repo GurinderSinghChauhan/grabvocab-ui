@@ -3,6 +3,7 @@ import { Feather } from '@expo/vector-icons';
 
 import { styles } from '../../styles/appStyles';
 import type { ThemeColors, WordData } from '../../types/app';
+import { WordDefinitionCard } from './Word';
 
 export function WordListPage({
   colors,
@@ -17,6 +18,7 @@ export function WordListPage({
   isWide,
   loading,
   backendError,
+  cardVariant = 'compact',
 }: {
   colors: ThemeColors;
   title: string;
@@ -30,23 +32,40 @@ export function WordListPage({
   isWide: boolean;
   loading: boolean;
   backendError: string | null;
+  cardVariant?: 'compact' | 'word';
 }) {
   return (
     <View style={styles.pageWrap}>
       <Text style={[styles.listPageTitle, { color: colors.primaryText }]}>{title}</Text>
-      <View style={styles.wordListStack}>
+      <View
+        style={[
+          styles.wordListStack,
+          cardVariant === 'word' && styles.dictionaryWordList,
+          cardVariant === 'word' && isWide && styles.dictionaryWordListWide,
+        ]}
+      >
         {loading ? (
           <Text style={[styles.emptyState, { color: colors.primaryText }]}>Loading words...</Text>
         ) : words.length > 0 ? (
-          words.map((word) => (
-            <SubjectWordCard
-              key={word.word}
-              word={word}
-              colors={colors}
-              onSpeak={onSpeak}
-              isWide={isWide}
-            />
-          ))
+          words.map((word) =>
+            cardVariant === 'word' ? (
+              <DictionaryWordCard
+                key={word.word}
+                word={word}
+                colors={colors}
+                onSpeak={onSpeak}
+                isWide={isWide}
+              />
+            ) : (
+              <SubjectWordCard
+                key={word.word}
+                word={word}
+                colors={colors}
+                onSpeak={onSpeak}
+                isWide={isWide}
+              />
+            )
+          )
         ) : (
           <Text style={[styles.emptyState, { color: colors.primaryText }]}>
             {backendError || 'No words found.'}
@@ -103,6 +122,20 @@ export function WordListPage({
       )}
     </View>
   );
+}
+
+function DictionaryWordCard({
+  word,
+  colors,
+  onSpeak,
+  isWide,
+}: {
+  word: WordData;
+  colors: ThemeColors;
+  onSpeak: (word: string) => void;
+  isWide: boolean;
+}) {
+  return <WordDefinitionCard colors={colors} word={word} onSpeak={onSpeak} isWide={isWide} />;
 }
 
 function SubjectWordCard({
