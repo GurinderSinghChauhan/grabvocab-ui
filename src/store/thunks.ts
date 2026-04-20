@@ -20,6 +20,34 @@ function getLocalCollection(route: Extract<RouteState, { page: 'subject' | 'grad
   return sampleWords.filter((entry) => entry.examSlug === route.value);
 }
 
+const fullDefinitionKeys = [
+  'partOfSpeech',
+  'pronunciation',
+  'wordForms',
+  'exampleSentence',
+  'synonyms',
+  'antonyms',
+  'memoryTrick',
+  'origin',
+] as const;
+
+function hasFullDefinitionFields(word: Record<string, unknown>) {
+  return fullDefinitionKeys.every((key) => Object.prototype.hasOwnProperty.call(word, key));
+}
+
+async function enrichDictionaryWord(word: Parameters<typeof normalizeWord>[0]) {
+  if (hasFullDefinitionFields(word)) {
+    return normalizeWord(word);
+  }
+
+  try {
+    const definition = await api.define(word.word);
+    return normalizeWord({ ...word, ...definition.result });
+  } catch {
+    return normalizeWord(word);
+  }
+}
+
 /**
  * Async thunk for fetching search suggestions
  * Fetches from Datamuse API based on search query
@@ -81,7 +109,7 @@ export const loadRouteData = createAsyncThunk('words/loadRouteData', async (rout
       const data = await api.dictionary(1, 50, '');
       return {
         type: 'collectionWords' as const,
-        data: data.words.map(normalizeWord),
+        data: await Promise.all(data.words.map(enrichDictionaryWord)),
       };
     }
 

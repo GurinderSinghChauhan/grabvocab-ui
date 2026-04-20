@@ -228,6 +228,83 @@ describe('Redux Thunks: Error Handling & Edge Cases', () => {
         expect(result.type).toMatch(/fulfilled/);
         const payload = result.payload as any;
         expect(payload?.type).toBe('collectionWords');
+        expect(api.define as jest.Mock).not.toHaveBeenCalled();
+      });
+
+      it('should enrich partial dictionary words with definition data', async () => {
+        (api.dictionary as jest.Mock).mockResolvedValueOnce({
+          words: [
+            {
+              word: 'abate',
+              meaning: 'to become less intense',
+              exampleSentence: 'The storm began to abate.',
+              imageURL: 'https://example.com/abate.png',
+            },
+          ],
+        });
+        (api.define as jest.Mock).mockResolvedValueOnce({
+          result: {
+            word: 'abate',
+            meaning: 'to become less intense',
+            partOfSpeech: 'verb',
+            pronunciation: 'uh-BAYT',
+            wordForms: ['abates', 'abated'],
+            exampleSentence: 'The storm began to abate.',
+            synonyms: ['lessen'],
+            antonyms: ['intensify'],
+            memoryTrick: 'A storm abates when it backs down.',
+            origin: 'Old French abatre.',
+            imageURL: 'https://example.com/abate.png',
+          },
+        });
+
+        const store = createTestStore();
+        const result = await store.dispatch(loadRouteData({ page: 'dictionary' }));
+
+        expect(result.type).toMatch(/fulfilled/);
+        expect(api.define as jest.Mock).toHaveBeenCalledWith('abate');
+        const payload = result.payload as any;
+        expect(payload?.data[0]).toMatchObject({
+          word: 'abate',
+          partOfSpeech: 'verb',
+          pronunciation: 'uh-BAYT',
+          memoryTrick: 'A storm abates when it backs down.',
+          origin: 'Old French abatre.',
+        });
+        expect(payload?.data[0].synonyms).toEqual(['lessen']);
+        expect(payload?.data[0].antonyms).toEqual(['intensify']);
+      });
+
+      it('should keep partial dictionary words when enrichment fails', async () => {
+        (api.dictionary as jest.Mock).mockResolvedValueOnce({
+          words: [
+            {
+              word: 'aberrant',
+              meaning: 'departing from normal',
+              exampleSentence: 'An aberrant result appeared.',
+              imageURL: 'https://example.com/aberrant.png',
+            },
+          ],
+        });
+        (api.define as jest.Mock).mockRejectedValueOnce(new Error('not found'));
+
+        const store = createTestStore();
+        const result = await store.dispatch(loadRouteData({ page: 'dictionary' }));
+
+        expect(result.type).toMatch(/fulfilled/);
+        const payload = result.payload as any;
+        expect(payload?.data[0]).toMatchObject({
+          word: 'aberrant',
+          meaning: 'departing from normal',
+          exampleSentence: 'An aberrant result appeared.',
+          imageURL: 'https://example.com/aberrant.png',
+          partOfSpeech: '',
+          pronunciation: '',
+          memoryTrick: '',
+          origin: '',
+        });
+        expect(payload?.data[0].synonyms).toEqual([]);
+        expect(payload?.data[0].antonyms).toEqual([]);
       });
 
       it('should handle dictionary API errors', async () => {
