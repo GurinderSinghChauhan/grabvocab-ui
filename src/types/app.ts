@@ -1,10 +1,17 @@
+import type { WordContextType } from '../config/api';
+
 export type ThemeMode = 'light' | 'dark';
 export type DropdownKey = 'Subject' | 'Grades' | 'Exam' | null;
+
+export type WordRouteContext = {
+  contextType: Exclude<WordContextType, 'generic'>;
+  contextKey: string;
+};
 
 export type RouteState =
   | { page: 'home' }
   | { page: 'dictionary' }
-  | { page: 'word'; word: string }
+  | { page: 'word'; word: string; context?: WordRouteContext }
   | { page: 'about' }
   | { page: 'share' }
   | { page: 'quiz' }

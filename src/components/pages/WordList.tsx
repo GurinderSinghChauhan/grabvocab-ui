@@ -11,6 +11,7 @@ export function WordListPage({
   words,
   limit,
   onSpeak,
+  onOpenWord,
   page,
   totalPages,
   onPageChange,
@@ -18,13 +19,14 @@ export function WordListPage({
   isWide,
   loading,
   backendError,
-  cardVariant = 'compact',
+  cardVariant = 'word',
 }: {
   colors: ThemeColors;
   title: string;
   words: WordData[];
   limit: number;
   onSpeak: (word: string) => void;
+  onOpenWord?: (word: string) => void;
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
@@ -32,7 +34,7 @@ export function WordListPage({
   isWide: boolean;
   loading: boolean;
   backendError: string | null;
-  cardVariant?: 'compact' | 'word';
+  cardVariant?: 'word';
 }) {
   return (
     <View style={styles.pageWrap}>
@@ -47,25 +49,16 @@ export function WordListPage({
         {loading ? (
           <Text style={[styles.emptyState, { color: colors.primaryText }]}>Loading words...</Text>
         ) : words.length > 0 ? (
-          words.map((word) =>
-            cardVariant === 'word' ? (
-              <DictionaryWordCard
-                key={word.word}
-                word={word}
-                colors={colors}
-                onSpeak={onSpeak}
-                isWide={isWide}
-              />
-            ) : (
-              <SubjectWordCard
-                key={word.word}
-                word={word}
-                colors={colors}
-                onSpeak={onSpeak}
-                isWide={isWide}
-              />
-            )
-          )
+          words.map((word) => (
+            <DictionaryWordCard
+              key={word.word}
+              word={word}
+              colors={colors}
+              onSpeak={onSpeak}
+              onOpenWord={onOpenWord}
+              isWide={isWide}
+            />
+          ))
         ) : (
           <Text style={[styles.emptyState, { color: colors.primaryText }]}>
             {backendError || 'No words found.'}
@@ -128,66 +121,22 @@ function DictionaryWordCard({
   word,
   colors,
   onSpeak,
+  onOpenWord,
   isWide,
 }: {
   word: WordData;
   colors: ThemeColors;
   onSpeak: (word: string) => void;
-  isWide: boolean;
-}) {
-  return <WordDefinitionCard colors={colors} word={word} onSpeak={onSpeak} isWide={isWide} />;
-}
-
-function SubjectWordCard({
-  word,
-  colors,
-  onSpeak,
-  isWide,
-}: {
-  word: WordData;
-  colors: ThemeColors;
-  onSpeak: (word: string) => void;
+  onOpenWord?: (word: string) => void;
   isWide: boolean;
 }) {
   return (
-    <Pressable
-      onPress={() => onSpeak(word.word)}
-      style={[
-        styles.subjectCard,
-        {
-          borderColor: colors.borderColor,
-          backgroundColor: colors.backgroundColor || colors.buttonBg,
-        },
-      ]}
-    >
-      <View style={styles.wordTitleRow}>
-        <Text style={[styles.detailWordTitle, { color: colors.primaryText }]}>{word.word}</Text>
-        <Feather name="volume-2" size={16} color={colors.primaryText} />
-      </View>
-      <Text style={[styles.infoValue, { color: colors.primaryText }]}>{word.meaning}</Text>
-      {isWide && (word.wordForms.length > 0 || word.synonyms.length > 0) && (
-        <View style={styles.wordDetailGridWide}>
-          <InfoBlock title="Forms" value={word.wordForms.join(', ') || '—'} colors={colors} />
-          <InfoBlock title="Synonyms" value={word.synonyms.join(', ') || '—'} colors={colors} />
-        </View>
-      )}
-    </Pressable>
-  );
-}
-
-function InfoBlock({
-  title,
-  value,
-  colors,
-}: {
-  title: string;
-  value: string;
-  colors: ThemeColors;
-}) {
-  return (
-    <View style={styles.infoBlock}>
-      <Text style={[styles.infoTitle, { color: colors.primaryText }]}>{title}</Text>
-      <Text style={[styles.infoValue, { color: colors.primaryText }]}>{value}</Text>
-    </View>
+    <WordDefinitionCard
+      colors={colors}
+      word={word}
+      onSpeak={onSpeak}
+      onOpenWord={onOpenWord}
+      isWide={isWide}
+    />
   );
 }

@@ -2,7 +2,7 @@ import words from 'an-array-of-english-words';
 import didYouMean from 'didyoumean';
 import { StatusBar } from 'expo-status-bar';
 import * as WebBrowser from 'expo-web-browser';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import {
   ActivityIndicator,
   SafeAreaView,
@@ -37,6 +37,7 @@ import type { NavItem } from './src/types/app';
 import {
   setRoute,
   setPage,
+  setLimit,
   setAuthMessage,
   setAuthUser,
   setAuthLoading,
@@ -111,19 +112,21 @@ function AppComponent() {
   const wordOfTheDay = useAppSelector((state) => state.words.wordOfTheDay);
   const currentWord = useAppSelector((state) => state.words.currentWord);
   const collectionWords = useAppSelector((state) => state.words.collectionWords);
+  const collectionTotalPages = useAppSelector((state) => state.words.collectionTotalPages);
   const loading = useAppSelector((state) => state.words.loading);
   const backendError = useAppSelector((state) => state.words.backendError);
 
-  const filteredWords = useMemo(
-    () => collectionWords.slice((page - 1) * limit, page * limit),
-    [collectionWords, page, limit]
-  );
-
-  const totalPages = Math.max(1, Math.ceil(collectionWords.length / limit));
+  const totalPages = Math.max(1, collectionTotalPages);
 
   useEffect(() => {
-    void dispatch(loadRouteData(route));
-  }, [dispatch, route]);
+    if (page > totalPages) {
+      dispatch(setPage(totalPages));
+    }
+  }, [dispatch, page, totalPages]);
+
+  useEffect(() => {
+    void dispatch(loadRouteData({ route, page, limit }));
+  }, [dispatch, route, page, limit]);
 
   if (!fontsLoaded) {
     return (
@@ -174,6 +177,26 @@ function AppComponent() {
     const corrected = didYouMean(trimmed, dictionaryWords);
     const target = typeof corrected === 'string' ? corrected : trimmed;
     navigate({ page: 'word', word: target });
+  };
+
+  const openContextualWord = (
+    word: string,
+    contextType: 'subject' | 'grade' | 'exam',
+    contextKey: string
+  ) => {
+    navigate({
+      page: 'word',
+      word,
+      context: {
+        contextType,
+        contextKey,
+      },
+    });
+  };
+
+  const handleLimitChange = (value: number) => {
+    dispatch(setLimit(value));
+    dispatch(setPage(1));
   };
 
   // Check if navigation item is active
@@ -364,13 +387,13 @@ function AppComponent() {
               <WordListPage
                 colors={colors}
                 title="Dictionary Words (A-Z)"
-                words={filteredWords}
+                words={collectionWords}
                 limit={limit}
                 onSpeak={speak}
                 page={page}
                 totalPages={totalPages}
                 onPageChange={(p) => dispatch(setPage(p))}
-                onLimitChange={() => {}}
+                onLimitChange={handleLimitChange}
                 isWide={isTabletUp}
                 loading={loading}
                 backendError={backendError}
@@ -382,16 +405,18 @@ function AppComponent() {
               <WordListPage
                 colors={colors}
                 title={`Words for: ${formattedFilterTitle()}`}
-                words={filteredWords}
+                words={collectionWords}
                 limit={limit}
                 onSpeak={speak}
+                onOpenWord={(word) => openContextualWord(word, 'subject', route.value)}
                 page={page}
                 totalPages={totalPages}
                 onPageChange={(p) => dispatch(setPage(p))}
-                onLimitChange={() => {}}
+                onLimitChange={handleLimitChange}
                 isWide={isTabletUp}
                 loading={loading}
                 backendError={backendError}
+                cardVariant="word"
               />
             )}
 
@@ -399,16 +424,18 @@ function AppComponent() {
               <WordListPage
                 colors={colors}
                 title={`Words for: ${formattedFilterTitle()}`}
-                words={filteredWords}
+                words={collectionWords}
                 limit={limit}
                 onSpeak={speak}
+                onOpenWord={(word) => openContextualWord(word, 'grade', route.value)}
                 page={page}
                 totalPages={totalPages}
                 onPageChange={(p) => dispatch(setPage(p))}
-                onLimitChange={() => {}}
+                onLimitChange={handleLimitChange}
                 isWide={isTabletUp}
                 loading={loading}
                 backendError={backendError}
+                cardVariant="word"
               />
             )}
 
@@ -416,16 +443,18 @@ function AppComponent() {
               <WordListPage
                 colors={colors}
                 title={`Words for: ${formattedFilterTitle()}`}
-                words={filteredWords}
+                words={collectionWords}
                 limit={limit}
                 onSpeak={speak}
+                onOpenWord={(word) => openContextualWord(word, 'exam', route.value)}
                 page={page}
                 totalPages={totalPages}
                 onPageChange={(p) => dispatch(setPage(p))}
-                onLimitChange={() => {}}
+                onLimitChange={handleLimitChange}
                 isWide={isTabletUp}
                 loading={loading}
                 backendError={backendError}
+                cardVariant="word"
               />
             )}
 

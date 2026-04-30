@@ -7,6 +7,7 @@ interface WordsState {
   wordOfTheDay: WordData | null;
   currentWord: WordData | null;
   collectionWords: WordData[];
+  collectionTotalPages: number;
   loading: boolean;
   backendError: string | null;
 }
@@ -15,6 +16,7 @@ const initialState: WordsState = {
   wordOfTheDay: null,
   currentWord: null,
   collectionWords: [],
+  collectionTotalPages: 1,
   loading: false,
   backendError: null,
 };
@@ -31,6 +33,7 @@ export const wordsSlice = createSlice({
     },
     setCollectionWords: (state, action: PayloadAction<WordData[]>) => {
       state.collectionWords = action.payload;
+      state.collectionTotalPages = 1;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
@@ -46,6 +49,7 @@ export const wordsSlice = createSlice({
     },
     clearCollection: (state) => {
       state.collectionWords = [];
+      state.collectionTotalPages = 1;
     },
   },
   extraReducers: (builder) => {
@@ -61,6 +65,7 @@ export const wordsSlice = createSlice({
           state.currentWord = action.payload.data;
         } else if (action.payload.type === 'collectionWords') {
           state.collectionWords = action.payload.data;
+          state.collectionTotalPages = action.payload.totalPages;
         }
       })
       .addCase(loadRouteData.rejected, (state, action) => {

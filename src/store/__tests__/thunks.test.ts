@@ -365,7 +365,38 @@ describe('Redux Thunks: Error Handling & Edge Cases', () => {
           expect(result.type).toMatch(/fulfilled/);
           const payload = result.payload as any;
           expect(payload?.type).toBe('collectionWords');
-          expect(api[apiMethod] as jest.Mock).toHaveBeenCalledWith(value, 1, 50);
+          expect(api[apiMethod] as jest.Mock).toHaveBeenCalledWith(value, 1, 10);
+        });
+
+        it(`should load ${page} words with requested pagination`, async () => {
+          const mockData = {
+            words: [
+              {
+                word: 'word1',
+                meaning: 'meaning1',
+                partOfSpeech: 'noun',
+                pronunciation: 'pron1',
+                wordForms: [],
+                exampleSentence: 'Example 1',
+                synonyms: [],
+                antonyms: [],
+                memoryTrick: '',
+                origin: '',
+              },
+            ],
+            totalPages: 7,
+          };
+
+          (api[apiMethod] as jest.Mock).mockResolvedValueOnce(mockData);
+
+          const store = createTestStore();
+          const route = { page, value } as RouteState;
+          const result = await store.dispatch(loadRouteData({ route, page: 3, limit: 20 }));
+
+          expect(result.type).toMatch(/fulfilled/);
+          const payload = result.payload as any;
+          expect(payload?.totalPages).toBe(7);
+          expect(api[apiMethod] as jest.Mock).toHaveBeenCalledWith(value, 3, 20);
         });
 
         it(`should handle ${page} API errors`, async () => {

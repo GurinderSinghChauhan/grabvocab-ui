@@ -46,14 +46,16 @@ export function WordDefinitionCard({
   colors,
   word,
   onSpeak,
+  onOpenWord,
   isWide,
 }: {
   colors: ThemeColors;
   word: WordData;
   onSpeak: (word: string) => void;
+  onOpenWord?: (word: string) => void;
   isWide: boolean;
 }) {
-  return (
+  const card = (
     <View
       style={[
         styles.wordDetailCard,
@@ -81,7 +83,13 @@ export function WordDefinitionCard({
         >
           <View style={styles.wordTitleRow}>
             <Text style={styles.detailWordTitle}>{word.word}</Text>
-            <Pressable onPress={() => onSpeak(word.word)}>
+            <Pressable
+              onPress={(event) => {
+                event.stopPropagation();
+                onSpeak(word.word);
+              }}
+              hitSlop={8}
+            >
               <Feather name="volume-2" size={24} color={colors.primaryText} />
             </Pressable>
           </View>
@@ -135,6 +143,12 @@ export function WordDefinitionCard({
       </View>
     </View>
   );
+
+  if (!onOpenWord) {
+    return card;
+  }
+
+  return <Pressable onPress={() => onOpenWord(word.word)}>{card}</Pressable>;
 }
 
 function InfoBlock({

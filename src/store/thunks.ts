@@ -4,6 +4,30 @@ import { sampleWords } from '../data/sampleWords';
 import { normalizeWord } from '../utils/normalizeWord';
 import type { RouteState } from '../types/app';
 
+type LoadRouteDataArgs =
+  | RouteState
+  | {
+      route: RouteState;
+      page?: number;
+      limit?: number;
+    };
+
+function normalizeLoadArgs(args: LoadRouteDataArgs) {
+  if ('route' in args) {
+    return {
+      route: args.route,
+      page: args.page ?? 1,
+      limit: args.limit ?? 10,
+    };
+  }
+
+  return {
+    route: args,
+    page: 1,
+    limit: 10,
+  };
+}
+
 function getLocalWord(word: string) {
   return sampleWords.find((entry) => entry.word.toLowerCase() === word.toLowerCase());
 }
@@ -18,6 +42,13 @@ function getLocalCollection(route: Extract<RouteState, { page: 'subject' | 'grad
   }
 
   return sampleWords.filter((entry) => entry.examSlug === route.value);
+}
+
+function paginateLocalWords(words: typeof sampleWords, page: number, limit: number) {
+  return {
+    words: words.slice((page - 1) * limit, page * limit),
+    totalPages: Math.max(1, Math.ceil(words.length / limit)),
+  };
 }
 
 const fullDefinitionKeys = [
@@ -72,7 +103,9 @@ export const loadSuggestions = createAsyncThunk('ui/loadSuggestions', async (que
  * Async thunk for fetching words based on route
  * Handles multiple route types: word, dictionary, subject, grade, exam
  */
-export const loadRouteData = createAsyncThunk('words/loadRouteData', async (route: RouteState) => {
+export const loadRouteData = createAsyncThunk('words/loadRouteData', async (args: LoadRouteDataArgs) => {
+  const { route, page, limit } = normalizeLoadArgs(args);
+
   // Pages that don't need data loading
   if (
     route.page === 'home' ||
@@ -87,7 +120,7 @@ export const loadRouteData = createAsyncThunk('words/loadRouteData', async (rout
   try {
     if (route.page === 'word') {
       try {
-        const data = await api.define(route.word);
+        const data = await api.define(route.word, route.context);
         return {
           type: 'currentWord' as const,
           data: normalizeWord(data.result),
@@ -106,10 +139,11 @@ export const loadRouteData = createAsyncThunk('words/loadRouteData', async (rout
     }
 
     if (route.page === 'dictionary') {
-      const data = await api.dictionary(1, 50, '');
+      const data = await api.dictionary(page, limit, '');
       return {
         type: 'collectionWords' as const,
         data: await Promise.all(data.words.map(enrichDictionaryWord)),
+        totalPages: data.totalPages,
       };
     }
 
@@ -117,24 +151,26 @@ export const loadRouteData = createAsyncThunk('words/loadRouteData', async (rout
       try {
         const data =
           route.page === 'subject'
-            ? await api.subject(route.value, 1, 50)
+            ? await api.subject(route.value, page, limit)
             : route.page === 'grade'
-              ? await api.grade(route.value, 1, 50)
-              : await api.exam(route.value, 1, 50);
+              ? await api.grade(route.value, page, limit)
+              : await api.exam(route.value, page, limit);
 
         return {
           type: 'collectionWords' as const,
           data: data.words.map(normalizeWord),
+          totalPages: data.totalPages,
         };
       } catch (error) {
-        const fallbackWords = getLocalCollection(route);
-        if (!fallbackWords.length) {
+        const fallback = paginateLocalWords(getLocalCollection(route), page, limit);
+        if (!fallback.words.length) {
           throw error;
         }
 
         return {
           type: 'collectionWords' as const,
-          data: fallbackWords.map(normalizeWord),
+          data: fallback.words.map(normalizeWord),
+          totalPages: fallback.totalPages,
         };
       }
     }

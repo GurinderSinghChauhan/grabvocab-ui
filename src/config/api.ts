@@ -18,6 +18,27 @@ export type BackendWord = {
   imageURL?: string;
 };
 
+export type WordContextType = 'generic' | 'subject' | 'grade' | 'exam';
+
+export type BackendWordSense = BackendWord & {
+  senseId?: string;
+  shortDefinition?: string;
+  contextType?: WordContextType;
+  contextKey?: string;
+};
+
+export type DefineWordResponse = {
+  term: string;
+  result: BackendWord;
+  senses?: BackendWordSense[];
+  totalSenses?: number;
+  source?: 'word_senses' | 'words';
+  requestedContext?: {
+    contextType?: WordContextType;
+    contextKey?: string;
+  };
+};
+
 /**
  * Makes a typed API request to the backend.
  *
@@ -65,8 +86,22 @@ export const api = {
    * @param word - The word to look up
    * @returns Promise with term and detailed result
    */
-  define: (word: string) =>
-    request<{ term: string; result: BackendWord }>(`/define/${encodeURIComponent(word)}`),
+  define: (
+    word: string,
+    options?: {
+      contextType?: WordContextType;
+      contextKey?: string;
+    }
+  ) => {
+    const params = new URLSearchParams();
+    if (options?.contextType) params.set('contextType', options.contextType);
+    if (options?.contextKey) params.set('contextKey', options.contextKey);
+    const query = params.toString();
+
+    return request<DefineWordResponse>(
+      `/define/${encodeURIComponent(word)}${query ? `?${query}` : ''}`
+    );
+  },
 
   /**
    * Searches the word dictionary with pagination.
