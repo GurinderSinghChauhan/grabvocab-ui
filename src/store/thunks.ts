@@ -103,80 +103,83 @@ export const loadSuggestions = createAsyncThunk('ui/loadSuggestions', async (que
  * Async thunk for fetching words based on route
  * Handles multiple route types: word, dictionary, subject, grade, exam
  */
-export const loadRouteData = createAsyncThunk('words/loadRouteData', async (args: LoadRouteDataArgs) => {
-  const { route, page, limit } = normalizeLoadArgs(args);
+export const loadRouteData = createAsyncThunk(
+  'words/loadRouteData',
+  async (args: LoadRouteDataArgs) => {
+    const { route, page, limit } = normalizeLoadArgs(args);
 
-  // Pages that don't need data loading
-  if (
-    route.page === 'home' ||
-    route.page === 'about' ||
-    route.page === 'share' ||
-    route.page === 'quiz' ||
-    route.page === 'auth'
-  ) {
-    return null;
-  }
+    // Pages that don't need data loading
+    if (
+      route.page === 'home' ||
+      route.page === 'about' ||
+      route.page === 'share' ||
+      route.page === 'quiz' ||
+      route.page === 'auth'
+    ) {
+      return null;
+    }
 
-  try {
-    if (route.page === 'word') {
-      try {
-        const data = await api.define(route.word, route.context);
-        return {
-          type: 'currentWord' as const,
-          data: normalizeWord(data.result),
-        };
-      } catch (error) {
-        const fallbackWord = getLocalWord(route.word);
-        if (!fallbackWord) {
-          throw error;
+    try {
+      if (route.page === 'word') {
+        try {
+          const data = await api.define(route.word, route.context);
+          return {
+            type: 'currentWord' as const,
+            data: normalizeWord(data.result),
+          };
+        } catch (error) {
+          const fallbackWord = getLocalWord(route.word);
+          if (!fallbackWord) {
+            throw error;
+          }
+
+          return {
+            type: 'currentWord' as const,
+            data: normalizeWord(fallbackWord),
+          };
         }
-
-        return {
-          type: 'currentWord' as const,
-          data: normalizeWord(fallbackWord),
-        };
       }
-    }
 
-    if (route.page === 'dictionary') {
-      const data = await api.dictionary(page, limit, '');
-      return {
-        type: 'collectionWords' as const,
-        data: await Promise.all(data.words.map(enrichDictionaryWord)),
-        totalPages: data.totalPages,
-      };
-    }
-
-    if (route.page === 'subject' || route.page === 'grade' || route.page === 'exam') {
-      try {
-        const data =
-          route.page === 'subject'
-            ? await api.subject(route.value, page, limit)
-            : route.page === 'grade'
-              ? await api.grade(route.value, page, limit)
-              : await api.exam(route.value, page, limit);
-
+      if (route.page === 'dictionary') {
+        const data = await api.dictionary(page, limit, '');
         return {
           type: 'collectionWords' as const,
-          data: data.words.map(normalizeWord),
+          data: await Promise.all(data.words.map(enrichDictionaryWord)),
           totalPages: data.totalPages,
         };
-      } catch (error) {
-        const fallback = paginateLocalWords(getLocalCollection(route), page, limit);
-        if (!fallback.words.length) {
-          throw error;
-        }
-
-        return {
-          type: 'collectionWords' as const,
-          data: fallback.words.map(normalizeWord),
-          totalPages: fallback.totalPages,
-        };
       }
-    }
 
-    return null;
-  } catch (error: unknown) {
-    throw error instanceof Error ? error.message : 'Backend unavailable';
+      if (route.page === 'subject' || route.page === 'grade' || route.page === 'exam') {
+        try {
+          const data =
+            route.page === 'subject'
+              ? await api.subject(route.value, page, limit)
+              : route.page === 'grade'
+                ? await api.grade(route.value, page, limit)
+                : await api.exam(route.value, page, limit);
+
+          return {
+            type: 'collectionWords' as const,
+            data: data.words.map(normalizeWord),
+            totalPages: data.totalPages,
+          };
+        } catch (error) {
+          const fallback = paginateLocalWords(getLocalCollection(route), page, limit);
+          if (!fallback.words.length) {
+            throw error;
+          }
+
+          return {
+            type: 'collectionWords' as const,
+            data: fallback.words.map(normalizeWord),
+            totalPages: fallback.totalPages,
+          };
+        }
+      }
+
+      return null;
+    } catch (error: unknown) {
+      throw error instanceof Error ? error.message : 'Backend unavailable';
+    }
   }
-});
+);
