@@ -20,6 +20,34 @@ function formatContextLabel(contextType?: string, contextKey?: string) {
   return label || contextType;
 }
 
+function normalizeMeaning(value: string) {
+  return value.trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
+function getContextualMeaningGroups(senses: NonNullable<WordData['senses']>) {
+  const groups = new Map<string, { labels: string[]; meaning: string }>();
+
+  senses.forEach((sense) => {
+    const key = normalizeMeaning(sense.meaning);
+    const label = formatContextLabel(sense.contextType, sense.contextKey);
+    const existing = groups.get(key);
+
+    if (existing) {
+      if (!existing.labels.includes(label)) {
+        existing.labels.push(label);
+      }
+      return;
+    }
+
+    groups.set(key, {
+      labels: [label],
+      meaning: sense.meaning,
+    });
+  });
+
+  return Array.from(groups.values());
+}
+
 export function WordPage({
   colors,
   word,
@@ -71,6 +99,9 @@ export function WordDefinitionCard({
   onOpenWord?: (word: string) => void;
   isWide: boolean;
 }) {
+  const contextualMeaningGroups =
+    word.senses && word.senses.length > 1 ? getContextualMeaningGroups(word.senses) : [];
+
   const card = (
     <View
       style={[
@@ -131,21 +162,21 @@ export function WordDefinitionCard({
                 value={word.origin || 'No origin available.'}
                 colors={colors}
               />
-              {word.senses && word.senses.length > 1 ? (
+              {contextualMeaningGroups.length > 1 ? (
                 <View style={styles.contextSenseList}>
                   <Text style={[styles.infoTitle, { color: colors.primaryText }]}>
                     Contextual Meanings
                   </Text>
-                  {word.senses.map((sense) => (
+                  {contextualMeaningGroups.map((group) => (
                     <View
-                      key={sense.senseId || `${sense.contextType}-${sense.contextKey}`}
+                      key={`${group.labels.join('|')}-${group.meaning}`}
                       style={[styles.contextSenseItem, { borderColor: colors.borderColor }]}
                     >
                       <Text style={[styles.contextSenseLabel, { color: colors.primaryText }]}>
-                        {formatContextLabel(sense.contextType, sense.contextKey)}
+                        {group.labels.join(', ')}
                       </Text>
                       <Text style={[styles.infoValue, { color: colors.primaryText }]}>
-                        {sense.meaning}
+                        {group.meaning}
                       </Text>
                     </View>
                   ))}
