@@ -73,7 +73,12 @@ async function enrichDictionaryWord(word: Parameters<typeof normalizeWord>[0]) {
 
   try {
     const definition = await api.define(word.word);
-    return normalizeWord({ ...word, ...definition.result });
+    return normalizeWord({
+      ...word,
+      ...definition.result,
+      senses: definition.senses,
+      totalSenses: definition.totalSenses,
+    });
   } catch {
     return normalizeWord(word);
   }

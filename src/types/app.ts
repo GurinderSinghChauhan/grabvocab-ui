@@ -57,6 +57,13 @@ export type WordData = {
   memoryTrick: string;
   origin: string;
   imageURL?: string;
+  senses?: Array<{
+    senseId?: string;
+    meaning: string;
+    contextType?: 'generic' | 'subject' | 'grade' | 'exam';
+    contextKey?: string;
+  }>;
+  totalSenses?: number;
   date?: string;
 };
 

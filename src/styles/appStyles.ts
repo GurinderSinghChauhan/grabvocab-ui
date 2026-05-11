@@ -500,6 +500,21 @@ export const styles = StyleSheet.create({
     lineHeight: 22,
     fontFamily: 'Courier',
   },
+  contextSenseList: {
+    gap: 8,
+  },
+  contextSenseItem: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    gap: 4,
+  },
+  contextSenseLabel: {
+    fontSize: 14,
+    fontWeight: '700',
+    fontFamily: 'Courier',
+    textTransform: 'uppercase',
+  },
   pageWrap: {
     maxWidth: 1100,
     width: '100%',

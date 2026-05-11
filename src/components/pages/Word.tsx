@@ -4,6 +4,22 @@ import { Feather } from '@expo/vector-icons';
 import { styles } from '../../styles/appStyles';
 import type { ThemeColors, WordData } from '../../types/app';
 
+function formatContextLabel(contextType?: string, contextKey?: string) {
+  if (!contextType || contextType === 'generic') return 'Generic';
+  const label = contextKey
+    ? contextKey
+        .split('-')
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ')
+    : '';
+
+  if (contextType === 'subject') return label || 'Subject';
+  if (contextType === 'grade') return label || 'Grade';
+  if (contextType === 'exam') return label ? label.toUpperCase() : 'Exam';
+  return label || contextType;
+}
+
 export function WordPage({
   colors,
   word,
@@ -115,6 +131,26 @@ export function WordDefinitionCard({
                 value={word.origin || 'No origin available.'}
                 colors={colors}
               />
+              {word.senses && word.senses.length > 1 ? (
+                <View style={styles.contextSenseList}>
+                  <Text style={[styles.infoTitle, { color: colors.primaryText }]}>
+                    Contextual Meanings
+                  </Text>
+                  {word.senses.map((sense) => (
+                    <View
+                      key={sense.senseId || `${sense.contextType}-${sense.contextKey}`}
+                      style={[styles.contextSenseItem, { borderColor: colors.borderColor }]}
+                    >
+                      <Text style={[styles.contextSenseLabel, { color: colors.primaryText }]}>
+                        {formatContextLabel(sense.contextType, sense.contextKey)}
+                      </Text>
+                      <Text style={[styles.infoValue, { color: colors.primaryText }]}>
+                        {sense.meaning}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              ) : null}
             </View>
             <View style={styles.wordDetailColumn}>
               <InfoBlock

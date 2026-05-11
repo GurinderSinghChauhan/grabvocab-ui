@@ -16,6 +16,8 @@ export type BackendWord = {
   memoryTrick?: string;
   origin?: string;
   imageURL?: string;
+  senses?: BackendWordSense[];
+  totalSenses?: number;
 };
 
 export type WordContextType = 'generic' | 'subject' | 'grade' | 'exam';

@@ -19,5 +19,7 @@ export function normalizeWord(
     memoryTrick: word.memoryTrick ?? '',
     origin: word.origin ?? '',
     imageURL: word.imageURL,
+    senses: word.senses,
+    totalSenses: word.totalSenses,
   };
 }
